@@ -1,0 +1,2 @@
+# This file ensures the excel directory is tracked in git
+# Generated Excel files are ignored but the directory structure is preserved

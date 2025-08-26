@@ -1,0 +1,174 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, "3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    
+    - name: Lint with flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Format check with black
+      run: |
+        black --check --diff .
+    
+    - name: Import sorting check with isort
+      run: |
+        isort --check-only --diff .
+    
+    - name: Type checking with mypy
+      run: |
+        mypy main.py --ignore-missing-imports
+    
+    - name: Test with pytest
+      env:
+        AWS_DEFAULT_REGION: us-east-1
+        AWS_ACCESS_KEY_ID: testing
+        AWS_SECRET_ACCESS_KEY: testing
+        AWS_SECURITY_TOKEN: testing
+        AWS_SESSION_TOKEN: testing
+      run: |
+        pytest tests/ -v --cov=main --cov-report=xml --cov-report=html --cov-report=term-missing
+    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Integration test - Help commands
+      run: |
+        python main.py --help
+        python main.py --examples
+        python main.py --cache-help
+        python main.py --version
+    
+    - name: Integration test - Cache operations
+      run: |
+        python main.py --cache-stats || true
+        python main.py --clear-cache || true
+    
+    - name: Integration test - Dry run (no AWS credentials)
+      run: |
+        timeout 30s python main.py --format csv --quiet || true
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    
+    - name: Install security tools
+      run: |
+        pip install bandit safety
+    
+    - name: Run security scan with bandit
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+        bandit -r . --severity-level medium
+    
+    - name: Check for known vulnerabilities with safety
+      run: |
+        safety check --json --output safety-report.json || true
+        safety check
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, integration-test]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+    
+    - name: Create release package
+      run: |
+        mkdir -p dist/aws-services-reporter-${{ github.sha }}
+        cp main.py dist/aws-services-reporter-${{ github.sha }}/
+        cp requirements.txt dist/aws-services-reporter-${{ github.sha }}/
+        cp README.md dist/aws-services-reporter-${{ github.sha }}/
+        cp ROADMAP.md dist/aws-services-reporter-${{ github.sha }}/
+        cp QUICK_REFERENCE.md dist/aws-services-reporter-${{ github.sha }}/
+        cd dist && tar -czf aws-services-reporter-${{ github.sha }}.tar.gz aws-services-reporter-${{ github.sha }}/
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: aws-services-reporter-${{ github.sha }}
+        path: dist/*.tar.gz
