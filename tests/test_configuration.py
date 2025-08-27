@@ -10,8 +10,11 @@ import pytest
 # Import functions to test
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from aws_services_reporter.core.config import Config, create_config_from_args
-from aws_services_reporter.utils.cli import (parse_arguments, show_cache_help,
-                                             show_examples)
+from aws_services_reporter.utils.cli import (
+    parse_arguments,
+    show_cache_help,
+    show_examples,
+)
 
 
 class TestConfig:

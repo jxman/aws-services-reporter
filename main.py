@@ -13,18 +13,29 @@ from pathlib import Path
 
 from aws_services_reporter.aws_client.session import create_session
 from aws_services_reporter.aws_client.ssm_client import (
-    get_all_regions_and_names, get_services_per_region)
+    get_all_regions_and_names,
+    get_services_per_region,
+)
 from aws_services_reporter.core.cache import AWSDataCache
+
 # Import from our modular structure
-from aws_services_reporter.core.config import (Config, create_config_from_args,
-                                               setup_logging)
+from aws_services_reporter.core.config import (
+    Config,
+    create_config_from_args,
+    setup_logging,
+)
 from aws_services_reporter.core.progress import ProgressTracker
 from aws_services_reporter.output.csv_output import (
-    create_regions_services_csv, create_services_regions_matrix_csv)
+    create_regions_services_csv,
+    create_services_regions_matrix_csv,
+)
 from aws_services_reporter.output.excel_output import create_excel_output
 from aws_services_reporter.output.json_output import create_json_output
-from aws_services_reporter.utils.cli import (parse_arguments, show_cache_help,
-                                             show_examples)
+from aws_services_reporter.utils.cli import (
+    parse_arguments,
+    show_cache_help,
+    show_examples,
+)
 
 
 def main() -> None:

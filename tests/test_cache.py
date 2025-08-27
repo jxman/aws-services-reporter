@@ -2,6 +2,7 @@
 
 import json
 import os
+
 # Import the classes we're testing
 import sys
 import tempfile

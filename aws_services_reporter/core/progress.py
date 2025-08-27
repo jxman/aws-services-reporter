@@ -12,8 +12,14 @@ from tabulate import tabulate
 try:
     from rich.console import Console
     from rich.panel import Panel
-    from rich.progress import (BarColumn, Progress, SpinnerColumn, TextColumn,
-                               TimeElapsedColumn, TimeRemainingColumn)
+    from rich.progress import (
+        BarColumn,
+        Progress,
+        SpinnerColumn,
+        TextColumn,
+        TimeElapsedColumn,
+        TimeRemainingColumn,
+    )
     from rich.table import Table
 
     RICH_AVAILABLE = True

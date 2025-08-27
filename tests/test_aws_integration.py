@@ -12,8 +12,11 @@ from moto import mock_aws
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from aws_services_reporter.aws_client.session import create_session
 from aws_services_reporter.aws_client.ssm_client import (
-    get_all_parameters_by_path, get_all_regions_and_names, get_region_name,
-    get_services_per_region)
+    get_all_parameters_by_path,
+    get_all_regions_and_names,
+    get_region_name,
+    get_services_per_region,
+)
 from aws_services_reporter.core.config import Config
 
 

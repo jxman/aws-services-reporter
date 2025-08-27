@@ -14,7 +14,9 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from aws_services_reporter.core.config import Config
 from aws_services_reporter.output.csv_output import (
-    create_regions_services_csv, create_services_regions_matrix_csv)
+    create_regions_services_csv,
+    create_services_regions_matrix_csv,
+)
 from aws_services_reporter.output.excel_output import create_excel_output
 from aws_services_reporter.output.json_output import create_json_output
 
