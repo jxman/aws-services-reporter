@@ -34,6 +34,7 @@ def create_excel_output(
         Excel workbook (.xlsx) with multiple sheets:
         - Regional Services: List of regions and their services
         - Service Matrix: Services vs regions availability grid
+        - Region Summary: Regions with service counts and names
         - Statistics: Summary data and metadata
 
     Requires:
@@ -126,7 +127,33 @@ def create_excel_output(
                 elif cell.value == "✗":
                     cell.fill = red_fill
 
-        # Sheet 3: Statistics
+        # Sheet 3: Region Summary
+        ws_summary = wb.create_sheet("Region Summary")
+
+        # Create region summary data
+        summary_data = []
+        for region_code in sorted(regions.keys()):
+            region_name = regions[region_code]
+            service_count = len(region_services.get(region_code, []))
+            summary_data.append([region_code, region_name, service_count])
+
+        # Add headers and data
+        summary_headers = ["Region Code", "Region Name", "Service Count"]
+        ws_summary.append(summary_headers)
+        for row in summary_data:
+            ws_summary.append(row)
+
+        # Format summary headers
+        for cell in ws_summary[1]:
+            cell.font = header_font
+            cell.fill = header_fill
+
+        # Format service count column with number formatting
+        for row_idx in range(2, len(summary_data) + 2):
+            cell = ws_summary.cell(row=row_idx, column=3)
+            cell.alignment = Alignment(horizontal='right')
+
+        # Sheet 4: Statistics
         ws_stats = wb.create_sheet("Statistics")
 
         # Calculate statistics
@@ -199,7 +226,7 @@ def create_excel_output(
                     )
 
         # Auto-adjust column widths
-        for ws in [ws_regional, ws_matrix, ws_stats]:
+        for ws in [ws_regional, ws_matrix, ws_summary, ws_stats]:
             for column in ws.columns:
                 max_length = 0
                 column_letter = column[0].column_letter

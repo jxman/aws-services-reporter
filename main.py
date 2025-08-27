@@ -7,7 +7,6 @@ using a modular architecture for maintainability and extensibility.
 This refactored version uses the new modular structure for better code organization.
 """
 
-import logging
 import time
 from pathlib import Path
 
@@ -20,12 +19,12 @@ from aws_services_reporter.core.cache import AWSDataCache
 
 # Import from our modular structure
 from aws_services_reporter.core.config import (
-    Config,
     create_config_from_args,
     setup_logging,
 )
 from aws_services_reporter.core.progress import ProgressTracker
 from aws_services_reporter.output.csv_output import (
+    create_region_summary_csv,
     create_regions_services_csv,
     create_services_regions_matrix_csv,
 )
@@ -147,10 +146,9 @@ def main() -> None:
 
         # Generate outputs
         if not quiet:
-            print(f"\n📊 Generating outputs...")
-            print(
-                f"   Found {len(regions)} regions with {len(set().union(*region_services.values()))} unique services"
-            )
+            print("\n📊 Generating outputs...")
+            unique_services = len(set().union(*region_services.values()))
+            print(f"   Found {len(regions)} regions with {unique_services} unique services")
 
         output_success = []
 
@@ -174,6 +172,10 @@ def main() -> None:
                     config, regions, region_services, metadata, quiet
                 ):
                     output_success.append("Excel")
+
+            elif format_type == "region-summary":
+                create_region_summary_csv(config, regions, region_services, quiet)
+                output_success.append("Region Summary")
 
         # Show completion summary
         total_time = time.time() - start_time

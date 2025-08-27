@@ -120,3 +120,52 @@ def create_services_regions_matrix_csv(
     logger.info(
         f"Created {config.matrix_filename} matrix: {len(all_services)} services × {len(sorted_regions)} regions"
     )
+
+
+def create_region_summary_csv(
+    config: Config,
+    regions: Dict[str, str],
+    region_services: Dict[str, List[str]],
+    quiet: bool = False,
+) -> None:
+    """Generate CSV file summarizing regions with service counts and names.
+
+    Args:
+        config: Configuration object containing output settings
+        regions: Dictionary mapping region codes to display names
+        region_services: Dictionary mapping region codes to service lists
+        quiet: Suppress progress output if True
+
+    Creates:
+        CSV file with columns: Region Code, Region Name, Service Count
+        Each region gets one row with its total service count
+    """
+    output_path = Path(config.output_dir) / "csv" / "region_summary.csv"
+    logger = logging.getLogger(__name__)
+
+    if not quiet:
+        print("  📝 Creating region_summary.csv...")
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Region Code", "Region Name", "Service Count"])
+
+        # Write data sorted by region code
+        for region_code in sorted(regions.keys()):
+            region_name = regions[region_code]
+            service_count = len(region_services.get(region_code, []))
+            writer.writerow([region_code, region_name, service_count])
+
+    if not quiet:
+        total_regions = len(regions)
+        total_services = sum(len(services) for services in region_services.values())
+        avg_services = total_services / total_regions if total_regions > 0 else 0
+        print(
+            f"    ✓ Created region_summary.csv ({total_regions:,} regions, "
+            f"avg {avg_services:.1f} services per region)"
+        )
+
+    logger.info(f"Created region_summary.csv with {len(regions)} regions")

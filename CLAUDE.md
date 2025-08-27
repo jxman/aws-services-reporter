@@ -63,7 +63,8 @@ aws-services/
 ### 📊 **Multiple Output Formats**
 - **CSV**: Traditional spreadsheet format (in `reports/csv/`)
 - **JSON**: Rich data with statistics and metadata (in `reports/json/`)
-- **Excel**: Multi-sheet workbook with formatting (in `reports/excel/`)
+- **Excel**: Multi-sheet workbook with formatting (in `reports/excel/`) - 4 sheets including Region Summary
+- **Region Summary**: Dedicated CSV report with region codes, names, and service counts
 
 ### ⚡ **Performance Optimizations**
 - **Concurrent processing**: 10 concurrent API calls by default
@@ -94,6 +95,7 @@ pip install -r requirements-dev.txt  # Development dependencies (testing, lintin
 # Basic usage
 python main.py                       # Generate CSV reports (default)
 python main.py --format json excel   # Multiple formats
+python main.py --format region-summary # Region summary only
 python main.py --examples            # Show usage examples
 python main.py --cache-stats          # View cache information
 

@@ -16,7 +16,7 @@ AWS Services Reporter is a powerful Python tool that analyzes AWS service availa
 
 - 🚀 **Intelligent Caching**: 99% performance improvement (90s → 5s)
 - 🌍 **Complete Coverage**: All AWS regions and 400+ services  
-- 📊 **Multiple Formats**: CSV, JSON, Excel with rich metadata
+- 📊 **Multiple Formats**: CSV, JSON, Excel (4 sheets), Region Summary
 - ⚡ **Concurrent Processing**: 10 concurrent API calls by default
 - 🎯 **Rich Progress Tracking**: Beautiful progress bars and status displays
 - 🏗️ **Modular Architecture**: Clean, maintainable, and extensible code
@@ -102,7 +102,7 @@ python main.py --help
 python main.py --examples
 
 # Generate all output formats
-python main.py --format csv json excel
+python main.py --format csv json excel region-summary
 ```
 
 ## 📊 Performance Comparison

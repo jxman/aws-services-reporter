@@ -46,7 +46,7 @@ Examples:
     )
 
     # Output formats
-    valid_formats = ["csv", "json", "excel"]
+    valid_formats = ["csv", "json", "excel", "region-summary"]
     parser.add_argument(
         "--format",
         nargs="+",
@@ -153,7 +153,9 @@ def show_examples() -> None:
   python main.py --format csv              # Generate CSV files only
   python main.py --format json             # Generate JSON file only
   python main.py --format excel            # Generate Excel file only (requires pandas/openpyxl)
+  python main.py --format region-summary   # Generate region summary CSV only
   python main.py --format csv json excel   # Generate all formats
+  python main.py --format csv region-summary  # Generate CSV and region summary
 
 🎯 AWS CONFIGURATION EXAMPLES:
   python main.py --profile production      # Use specific AWS profile

@@ -23,10 +23,12 @@ python main.py --cache-hours 1     # Cache for 1 hour only
 ## 📊 **Output Formats** (Organized in `reports/` subdirectories)
 
 ```bash
-python main.py --format csv              # reports/csv/ (default)
-python main.py --format json             # reports/json/ with metadata
-python main.py --format excel            # reports/excel/ with sheets  
-python main.py --format csv json excel   # All formats in subdirectories
+python main.py --format csv               # reports/csv/ (default)
+python main.py --format json              # reports/json/ with metadata
+python main.py --format excel             # reports/excel/ with 4 sheets
+python main.py --format region-summary    # reports/csv/ region summary only
+python main.py --format csv json excel    # All formats in subdirectories
+python main.py --format csv region-summary# CSV + region summary
 # Cache automatically saved to reports/cache/
 ```
 
@@ -123,7 +125,7 @@ gh run view --web                            # Open latest run in browser
 | `--cache-file FILE` | Cache file location (default: cache/aws_data_cache.json) |
 | `--clear-cache` | Clear cache and exit |
 | `--cache-stats` | Show cache stats and exit |
-| `--format FORMAT [FORMAT ...]` | Output formats: csv, json, excel |
+| `--format FORMAT [FORMAT ...]` | Output formats: csv, json, excel, region-summary |
 | `--profile PROFILE` | AWS profile |
 | `--region REGION` | AWS region (default: us-east-1) |
 | `--log-level LEVEL` | DEBUG, INFO, WARNING, ERROR |
