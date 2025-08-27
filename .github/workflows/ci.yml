@@ -132,7 +132,7 @@ jobs:
         safety check
     
     - name: Upload security reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: security-reports
         path: |
@@ -168,7 +168,7 @@ jobs:
         cd dist && tar -czf aws-services-reporter-${{ github.sha }}.tar.gz aws-services-reporter-${{ github.sha }}/
     
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: aws-services-reporter-${{ github.sha }}
         path: dist/*.tar.gz
