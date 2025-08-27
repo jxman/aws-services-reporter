@@ -148,7 +148,9 @@ def main() -> None:
         if not quiet:
             print("\n📊 Generating outputs...")
             unique_services = len(set().union(*region_services.values()))
-            print(f"   Found {len(regions)} regions with {unique_services} unique services")
+            print(
+                f"   Found {len(regions)} regions with {unique_services} unique services"
+            )
 
         output_success = []
 

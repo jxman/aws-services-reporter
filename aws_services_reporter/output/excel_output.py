@@ -151,7 +151,7 @@ def create_excel_output(
         # Format service count column with number formatting
         for row_idx in range(2, len(summary_data) + 2):
             cell = ws_summary.cell(row=row_idx, column=3)
-            cell.alignment = Alignment(horizontal='right')
+            cell.alignment = Alignment(horizontal="right")
 
         # Sheet 4: Statistics
         ws_stats = wb.create_sheet("Statistics")

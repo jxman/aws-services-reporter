@@ -238,23 +238,29 @@ class TestOutputFormats:
                 excel_file = Path(self.temp_dir) / "excel" / "test_regions.xlsx"
                 assert excel_file.exists()
                 assert result is True
-                
+
                 # Test that Excel file has expected sheets
                 try:
                     import openpyxl
+
                     wb = openpyxl.load_workbook(excel_file)
                     sheet_names = wb.sheetnames
-                    expected_sheets = ["Regional Services", "Service Matrix", "Region Summary", "Statistics"]
+                    expected_sheets = [
+                        "Regional Services",
+                        "Service Matrix",
+                        "Region Summary",
+                        "Statistics",
+                    ]
                     assert len(sheet_names) == 4
                     for expected_sheet in expected_sheets:
                         assert expected_sheet in sheet_names
-                        
+
                     # Test region summary sheet content
                     ws_summary = wb["Region Summary"]
                     assert ws_summary["A1"].value == "Region Code"
                     assert ws_summary["B1"].value == "Region Name"
                     assert ws_summary["C1"].value == "Service Count"
-                    
+
                     # Check data rows (should have 3 regions)
                     assert ws_summary.max_row == 4  # 1 header + 3 data rows
                     wb.close()
