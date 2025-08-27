@@ -11,25 +11,29 @@ import logging
 import time
 from pathlib import Path
 
-# Import from our modular structure
-from aws_services_reporter.core.config import Config, create_config_from_args, setup_logging
-from aws_services_reporter.core.cache import AWSDataCache
-from aws_services_reporter.core.progress import ProgressTracker
 from aws_services_reporter.aws_client.session import create_session
-from aws_services_reporter.aws_client.ssm_client import get_all_regions_and_names, get_services_per_region
-from aws_services_reporter.output.csv_output import create_regions_services_csv, create_services_regions_matrix_csv
-from aws_services_reporter.output.json_output import create_json_output
+from aws_services_reporter.aws_client.ssm_client import (
+    get_all_regions_and_names, get_services_per_region)
+from aws_services_reporter.core.cache import AWSDataCache
+# Import from our modular structure
+from aws_services_reporter.core.config import (Config, create_config_from_args,
+                                               setup_logging)
+from aws_services_reporter.core.progress import ProgressTracker
+from aws_services_reporter.output.csv_output import (
+    create_regions_services_csv, create_services_regions_matrix_csv)
 from aws_services_reporter.output.excel_output import create_excel_output
-from aws_services_reporter.utils.cli import parse_arguments, show_examples, show_cache_help
+from aws_services_reporter.output.json_output import create_json_output
+from aws_services_reporter.utils.cli import (parse_arguments, show_cache_help,
+                                             show_examples)
 
 
 def main() -> None:
     """Main entry point for AWS Services Reporter application.
-    
+
     Orchestrates the complete data fetching, processing, and output generation workflow.
     Handles command-line arguments, configuration, caching, progress tracking, and
     multiple output formats with comprehensive error handling.
-    
+
     Workflow:
         1. Parse command-line arguments and create configuration
         2. Setup logging and progress tracking
@@ -37,7 +41,7 @@ def main() -> None:
         4. Check for cached data or fetch fresh data from AWS
         5. Generate requested output formats (CSV, JSON, Excel)
         6. Display performance statistics and completion status
-    
+
     Raises:
         SystemExit: For help commands or critical errors
         Exception: For unrecoverable errors during execution
@@ -45,30 +49,30 @@ def main() -> None:
     # Parse command-line arguments
     args = parse_arguments()
     config = create_config_from_args(args)
-    
+
     # Setup logging
     logger = setup_logging(config.log_level)
-    quiet = getattr(args, 'quiet', False)
-    
+    quiet = getattr(args, "quiet", False)
+
     # Initialize progress tracker
     progress = ProgressTracker(use_rich=config.use_rich, quiet=quiet)
-    
+
     # Initialize cache system
     cache = AWSDataCache(
         cache_file=str(Path(config.output_dir) / config.cache_file),
-        cache_hours=config.cache_hours
+        cache_hours=config.cache_hours,
     )
-    
+
     # Handle special commands
-    if getattr(args, 'examples', False):
+    if getattr(args, "examples", False):
         show_examples()
         return
-    
-    if getattr(args, 'cache_help', False):
+
+    if getattr(args, "cache_help", False):
         show_cache_help()
         return
-        
-    if getattr(args, 'cache_stats', False):
+
+    if getattr(args, "cache_stats", False):
         stats = cache.get_stats()
         progress.print_panel(
             f"""Cache Statistics:
@@ -79,19 +83,19 @@ def main() -> None:
 • Regions: {stats.get('cache_info', {}).get('total_regions', 'N/A')}
 • Services: {stats.get('cache_info', {}).get('total_services', 'N/A')}
 • Updated: {stats.get('timestamp', 'N/A')}""",
-            "🔄 Cache Information"
+            "🔄 Cache Information",
         )
         return
-    
-    if getattr(args, 'clear_cache', False):
+
+    if getattr(args, "clear_cache", False):
         if cache.clear():
             progress.print_status("✅ Cache cleared successfully", "green")
         else:
             progress.print_status("❌ Failed to clear cache", "red")
         return
-    
+
     start_time = time.time()
-    
+
     try:
         # Check cache first
         if config.cache_enabled:
@@ -108,53 +112,61 @@ def main() -> None:
         else:
             progress.print_status("⏳ Cache disabled - fetching fresh data", "yellow")
             cached_data = None
-        
+
         # Fetch fresh data if no valid cache
         if not cached_data:
             session = create_session(config)
-            
+
             # Fetch regions and services
             regions = get_all_regions_and_names(config, session, quiet)
             region_services = get_services_per_region(config, session, quiet)
-            
+
             fetch_duration = time.time() - start_time
             metadata = {
                 "fetch_duration": round(fetch_duration, 2),
                 "aws_profile": config.aws_profile,
                 "aws_region": config.aws_region,
-                "cache_enabled": config.cache_enabled
+                "cache_enabled": config.cache_enabled,
             }
-            
+
             # Save to cache if enabled
             if config.cache_enabled:
                 if cache.save(regions, region_services, metadata):
                     progress.print_status("💾 Data cached for future runs", "green")
-        
+
         # Generate outputs
         if not quiet:
             print(f"\n📊 Generating outputs...")
-            print(f"   Found {len(regions)} regions with {len(set().union(*region_services.values()))} unique services")
-        
+            print(
+                f"   Found {len(regions)} regions with {len(set().union(*region_services.values()))} unique services"
+            )
+
         output_success = []
-        
+
         # Generate requested formats
         for format_type in config.output_formats:
             if format_type == "csv":
                 create_regions_services_csv(config, regions, region_services, quiet)
-                create_services_regions_matrix_csv(config, regions, region_services, quiet)
+                create_services_regions_matrix_csv(
+                    config, regions, region_services, quiet
+                )
                 output_success.append("CSV")
-            
+
             elif format_type == "json":
-                if create_json_output(config, regions, region_services, metadata, quiet):
+                if create_json_output(
+                    config, regions, region_services, metadata, quiet
+                ):
                     output_success.append("JSON")
-            
+
             elif format_type == "excel":
-                if create_excel_output(config, regions, region_services, metadata, quiet):
+                if create_excel_output(
+                    config, regions, region_services, metadata, quiet
+                ):
                     output_success.append("Excel")
-        
+
         # Show completion summary
         total_time = time.time() - start_time
-        
+
         if not quiet:
             progress.print_panel(
                 f"""✅ Report Generation Complete!
@@ -176,11 +188,11 @@ def main() -> None:
 • View generated files in: {config.output_dir}
 • Use --cache-stats to monitor cache health
 • Try --format json excel for more output formats""",
-                "🚀 AWS Services Reporter"
+                "🚀 AWS Services Reporter",
             )
-        
+
         logger.info(f"Report generation completed in {total_time:.1f} seconds")
-        
+
     except KeyboardInterrupt:
         progress.print_status("\n⚠️  Operation interrupted by user", "yellow")
         logger.info("Operation interrupted by user")

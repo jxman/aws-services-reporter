@@ -14,8 +14,8 @@ Version: 1.3.0
 License: MIT
 """
 
-from .core.config import Config
 from .core.cache import AWSDataCache
+from .core.config import Config
 from .core.progress import ProgressTracker
 
 __version__ = "1.3.0"
@@ -24,6 +24,6 @@ __license__ = "MIT"
 
 __all__ = [
     "Config",
-    "AWSDataCache", 
+    "AWSDataCache",
     "ProgressTracker",
 ]

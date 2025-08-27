@@ -13,7 +13,7 @@ from typing import List, Optional
 @dataclass
 class Config:
     """Configuration settings for the AWS Services Reporter.
-    
+
     Attributes:
         output_dir: Directory for output files (default: current directory)
         max_workers: Number of concurrent API calls (default: 10)
@@ -29,6 +29,7 @@ class Config:
         use_rich: Use Rich library for enhanced output
         output_formats: List of output formats to generate
     """
+
     output_dir: str = "reports"
     max_workers: int = 10
     regions_filename: str = "regions_services.csv"
@@ -46,10 +47,10 @@ class Config:
 
 def create_config_from_args(args: argparse.Namespace) -> Config:
     """Create a Config object from parsed command line arguments.
-    
+
     Args:
         args: Parsed argument namespace from argparse
-        
+
     Returns:
         Config object with values from command line arguments
     """
@@ -65,29 +66,26 @@ def create_config_from_args(args: argparse.Namespace) -> Config:
         cache_enabled=not args.no_cache,
         cache_hours=args.cache_hours,
         cache_file=args.cache_file,
-        use_rich=not getattr(args, 'quiet', False),
-        output_formats=args.format
+        use_rich=not getattr(args, "quiet", False),
+        output_formats=args.format,
     )
 
 
 def setup_logging(log_level: str = "INFO") -> logging.Logger:
     """Setup logging configuration with specified level and formatting.
-    
+
     Args:
         log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        
+
     Returns:
         Configured logger instance
-        
+
     Note:
         Configures both console and file logging with timestamps
     """
     logging.basicConfig(
         level=getattr(logging, log_level.upper()),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler('aws_services.log'),
-            logging.StreamHandler()
-        ]
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler("aws_services.log"), logging.StreamHandler()],
     )
     return logging.getLogger(__name__)

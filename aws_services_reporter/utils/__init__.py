@@ -3,6 +3,6 @@
 Contains CLI argument parsing, help functions, and common utilities.
 """
 
-from .cli import parse_arguments, show_examples, show_cache_help
+from .cli import parse_arguments, show_cache_help, show_examples
 
 __all__ = ["parse_arguments", "show_examples", "show_cache_help"]

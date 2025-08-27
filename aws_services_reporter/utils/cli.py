@@ -9,10 +9,10 @@ from typing import List
 
 def parse_arguments() -> argparse.Namespace:
     """Parse and validate command line arguments.
-    
+
     Returns:
         Namespace object containing parsed command line arguments
-        
+
     Raises:
         SystemExit: If invalid arguments are provided or help is requested
     """
@@ -25,64 +25,112 @@ Examples:
   python main.py --output-dir ./reports            # Custom output directory
   python main.py --max-workers 15 --log-level DEBUG  # Performance tuning
   python main.py --profile production --region us-west-2  # AWS configuration
-        """
+        """,
     )
-    
+
     # Output configuration
-    parser.add_argument("--output-dir", default="reports", 
-                       help="Output directory for generated files (default: reports)")
-    parser.add_argument("--regions-file", default="regions_services.csv",
-                       help="Output filename for regions-services CSV (default: regions_services.csv)")
-    parser.add_argument("--matrix-file", default="services_regions_matrix.csv", 
-                       help="Output filename for services-regions matrix CSV (default: services_regions_matrix.csv)")
-    
+    parser.add_argument(
+        "--output-dir",
+        default="reports",
+        help="Output directory for generated files (default: reports)",
+    )
+    parser.add_argument(
+        "--regions-file",
+        default="regions_services.csv",
+        help="Output filename for regions-services CSV (default: regions_services.csv)",
+    )
+    parser.add_argument(
+        "--matrix-file",
+        default="services_regions_matrix.csv",
+        help="Output filename for services-regions matrix CSV (default: services_regions_matrix.csv)",
+    )
+
     # Output formats
-    valid_formats = ['csv', 'json', 'excel']
-    parser.add_argument("--format", nargs='+', choices=valid_formats, default=['csv'],
-                       help=f"Output formats to generate: {', '.join(valid_formats)} (default: csv)")
-    
+    valid_formats = ["csv", "json", "excel"]
+    parser.add_argument(
+        "--format",
+        nargs="+",
+        choices=valid_formats,
+        default=["csv"],
+        help=f"Output formats to generate: {', '.join(valid_formats)} (default: csv)",
+    )
+
     # AWS configuration
-    parser.add_argument("--profile", help="AWS profile to use (default: default profile)")
-    parser.add_argument("--region", default="us-east-1",
-                       help="AWS region for API calls (default: us-east-1)")
-    parser.add_argument("--max-retries", type=int, default=3, 
-                       help="Maximum retry attempts for failed API calls (default: 3)")
-    
+    parser.add_argument(
+        "--profile", help="AWS profile to use (default: default profile)"
+    )
+    parser.add_argument(
+        "--region",
+        default="us-east-1",
+        help="AWS region for API calls (default: us-east-1)",
+    )
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        default=3,
+        help="Maximum retry attempts for failed API calls (default: 3)",
+    )
+
     # Performance settings
-    parser.add_argument("--max-workers", type=int, default=10,
-                       help="Number of concurrent API calls (default: 10)")
-    
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=10,
+        help="Number of concurrent API calls (default: 10)",
+    )
+
     # Caching system
-    parser.add_argument("--no-cache", action="store_true",
-                       help="Disable caching and fetch fresh data")
-    parser.add_argument("--cache-hours", type=int, default=24,
-                       help="Cache validity period in hours (default: 24)")
-    parser.add_argument("--cache-file", default="cache/aws_data_cache.json",
-                       help="Cache file name (default: cache/aws_data_cache.json)")
-    parser.add_argument("--cache-stats", action="store_true",
-                       help="Show cache statistics and exit")
-    parser.add_argument("--clear-cache", action="store_true", 
-                       help="Clear cache and exit")
-    
+    parser.add_argument(
+        "--no-cache", action="store_true", help="Disable caching and fetch fresh data"
+    )
+    parser.add_argument(
+        "--cache-hours",
+        type=int,
+        default=24,
+        help="Cache validity period in hours (default: 24)",
+    )
+    parser.add_argument(
+        "--cache-file",
+        default="cache/aws_data_cache.json",
+        help="Cache file name (default: cache/aws_data_cache.json)",
+    )
+    parser.add_argument(
+        "--cache-stats", action="store_true", help="Show cache statistics and exit"
+    )
+    parser.add_argument(
+        "--clear-cache", action="store_true", help="Clear cache and exit"
+    )
+
     # Information and help
-    parser.add_argument("--examples", action="store_true",
-                       help="Show usage examples and exit")
-    parser.add_argument("--cache-help", action="store_true", 
-                       help="Show detailed caching help and exit")
-    parser.add_argument("--version", action="version", version="AWS Services Reporter v1.3.0")
-    
+    parser.add_argument(
+        "--examples", action="store_true", help="Show usage examples and exit"
+    )
+    parser.add_argument(
+        "--cache-help", action="store_true", help="Show detailed caching help and exit"
+    )
+    parser.add_argument(
+        "--version", action="version", version="AWS Services Reporter v1.3.0"
+    )
+
     # Logging and output
-    parser.add_argument("--log-level", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'], 
-                       default="INFO", help="Logging level (default: INFO)")
-    parser.add_argument("--quiet", action="store_true", 
-                       help="Suppress progress output (keep only results)")
-    
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        default="INFO",
+        help="Logging level (default: INFO)",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress progress output (keep only results)",
+    )
+
     return parser.parse_args()
 
 
 def show_examples() -> None:
     """Display comprehensive usage examples and common commands.
-    
+
     Prints detailed examples covering basic usage, caching, output formats,
     performance optimization, and common troubleshooting scenarios.
     """
@@ -144,7 +192,7 @@ For caching help: python main.py --cache-help
 
 def show_cache_help() -> None:
     """Display detailed cache system help and configuration information.
-    
+
     Explains how the intelligent caching system works, performance benefits,
     configuration options, and troubleshooting tips for cache-related issues.
     """
