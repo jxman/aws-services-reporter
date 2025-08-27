@@ -3,6 +3,7 @@
 > **Version 1.3.0** | **CI/CD**: ✅ Passing | **Security**: ✅ Excellent | **Tests**: 40 passing
 
 ## 🚀 **Quick Start**
+
 ```bash
 python main.py                    # Basic run (90 seconds first time, 5 seconds after)
 python main.py --examples         # Show all examples
@@ -10,6 +11,7 @@ python main.py --help             # Show all options
 ```
 
 ## 🔄 **Cache Commands** (99% Time Savings!)
+
 ```bash
 python main.py --cache-stats       # Show cache info
 python main.py --cache-help        # Explain caching system
@@ -19,6 +21,7 @@ python main.py --cache-hours 1     # Cache for 1 hour only
 ```
 
 ## 📊 **Output Formats** (Organized in `reports/` subdirectories)
+
 ```bash
 python main.py --format csv              # reports/csv/ (default)
 python main.py --format json             # reports/json/ with metadata
@@ -28,6 +31,7 @@ python main.py --format csv json excel   # All formats in subdirectories
 ```
 
 ## ⚙️ **Performance**
+
 ```bash
 python main.py --max-workers 15     # Faster (more concurrent calls)
 python main.py --max-retries 5      # More resilient
@@ -35,12 +39,14 @@ python main.py --quiet              # Silent mode
 ```
 
 ## ☁️ **AWS Config**
+
 ```bash
 python main.py --profile prod       # Use AWS profile
 python main.py --region us-west-2   # Change region
 ```
 
 ## 📁 **Custom Output**
+
 ```bash
 python main.py --output-dir ./reports
 python main.py --regions-file my_regions.csv
@@ -48,6 +54,7 @@ python main.py --matrix-file my_matrix.csv
 ```
 
 ## 🛠️ **Development & Testing**
+
 ```bash
 # Run tests (same as CI/CD pipeline)
 python -m pytest tests/ -v --cov=aws_services_reporter --cov-report=term-missing
@@ -66,6 +73,7 @@ black . && isort .
 ```
 
 ## 🔧 **Common Combinations**
+
 ```bash
 # Development (fast cache, JSON output)
 python main.py --cache-hours 1 --format json
@@ -81,6 +89,7 @@ python main.py --no-cache --format csv json excel
 ```
 
 ## 🆘 **Troubleshooting**
+
 ```bash
 python main.py --log-level DEBUG    # Detailed logs
 python main.py --cache-stats        # Check cache status  
@@ -97,6 +106,7 @@ gh run view --web                            # Open latest run in browser
 ```
 
 ## 📋 **All Available Options**
+
 | Option | Description |
 |--------|-------------|
 | `--help` | Show help message |
@@ -120,6 +130,7 @@ gh run view --web                            # Open latest run in browser
 | `--quiet` | Suppress output |
 
 ## 🔒 **Security & CI/CD**
+
 ```bash
 # View security reports (download from GitHub Actions)
 gh run download --name security-reports
@@ -145,7 +156,9 @@ gh run view [RUN_ID]               # Detailed run info
 | **Production Ready** | ✅ Yes | Fully validated and tested |
 
 ---
-**Tips**: 
+
+**Tips**:
+
 - Use `python main.py --examples` for detailed usage examples
 - Check `README.md` for complete documentation with security details
 - View `ROADMAP.md` for completed milestones and future plans
