@@ -16,7 +16,7 @@ AWS Services Reporter is a powerful Python tool that analyzes AWS service availa
 
 - 🚀 **Intelligent Caching**: 99% performance improvement (90s → 5s)
 - 🌍 **Complete Coverage**: All AWS regions and 400+ services  
-- 📊 **Multiple Formats**: CSV, JSON, Excel (4 sheets), Region Summary
+- 📊 **Multiple Formats**: CSV, JSON, Excel (5 sheets), Region Summary
 - ⚡ **Concurrent Processing**: 10 concurrent API calls by default
 - 🎯 **Rich Progress Tracking**: Beautiful progress bars and status displays
 - 🏗️ **Modular Architecture**: Clean, maintainable, and extensible code
@@ -24,6 +24,7 @@ AWS Services Reporter is a powerful Python tool that analyzes AWS service availa
 - 📈 **Detailed Statistics**: Service coverage, regional analysis, and metadata
 - ✅ **Production Ready**: Comprehensive CI/CD pipeline with automated testing
 - 🛡️ **Security Validated**: Zero high/medium severity security issues
+- 🔧 **Pre-commit Hooks**: Automatic code formatting and quality checks
 
 ## 🏗️ Architecture
 
@@ -37,6 +38,12 @@ AWS Services Reporter is a powerful Python tool that analyzes AWS service availa
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │  Cache System   │───▶│  AWS SSM Client │───▶│ Output Generators│
 │ (TTL validation)│    │ (concurrent)    │    │ (CSV/JSON/Excel)│
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Pre-commit     │    │   CI/CD Pipeline│    │  Security Scans │
+│ (code quality)  │    │ (testing/build) │    │ (bandit/safety) │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -55,20 +62,26 @@ aws-services/
 │   ├── output/                   # Report generation
 │   │   ├── csv_output.py         # CSV report generation
 │   │   ├── json_output.py        # JSON with statistics
-│   │   └── excel_output.py       # Excel with multiple sheets
+│   │   └── excel_output.py       # Excel with 5 sheets
 │   └── utils/                    # Utilities & CLI
 │       └── cli.py                # Command-line interface
 ├── reports/                      # Generated reports (organized)
-│   ├── csv/                      # CSV outputs
+│   ├── csv/                      # CSV outputs (4 files)
 │   ├── json/                     # JSON outputs
-│   ├── excel/                    # Excel outputs
+│   ├── excel/                    # Excel outputs (5 sheets)
 │   └── cache/                    # Cache files
 ├── tests/                        # Comprehensive test suite (80%+ coverage)
-├── .github/workflows/            # CI/CD pipeline (fully operational)
+├── .pre-commit-config.yaml       # Pre-commit hooks configuration
+├── DEVELOPMENT.md                # Developer setup guide
 ├── main.py                       # Application entry point
 ├── requirements.txt              # Runtime dependencies
-├── requirements-dev.txt          # Development dependencies
-└── docs/                         # Documentation
+├── requirements-dev.txt          # Development dependencies (includes pre-commit)
+└── documentation/                # Comprehensive guides
+    ├── README.md                 # Main documentation
+    ├── QUICK_REFERENCE.md        # Command cheat sheet
+    ├── TROUBLESHOOTING.md        # Common issues guide
+    ├── ROADMAP.md                # Development roadmap
+    └── AWS_SSM_DATA_EXPLORATION.md # Technical deep-dive
 ```
 
 ## 🚀 Quick Start
@@ -77,8 +90,8 @@ aws-services/
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd aws-services
+git clone https://github.com/jxman/aws-services-reporter.git
+cd aws-services-reporter
 
 # Create virtual environment (recommended)
 python3 -m venv .venv
@@ -142,14 +155,20 @@ python main.py --cache-hours 48  # 48-hour cache
 ### 1. CSV Reports (`reports/csv/`)
 - **regions_services.csv**: Each region with its available services
 - **services_regions_matrix.csv**: Service × Region availability matrix
+- **region_summary.csv**: Summary of regions with service counts and AZ info
+- **service_summary.csv**: Summary of services with regional coverage statistics
 
 ### 2. JSON Report (`reports/json/`)
 - **regions_services.json**: Complete data with statistics and metadata
 - Includes service coverage percentages and regional analysis
 
 ### 3. Excel Report (`reports/excel/`) - requires pandas + openpyxl
-- **regions_services.xlsx**: Multi-sheet workbook with formatted data
-- Includes multiple sheets with statistics, conditional formatting, and organized data
+- **regions_services.xlsx**: Multi-sheet workbook with 5 formatted sheets:
+  - **Regional Services**: Detailed region-service mappings
+  - **Service Matrix**: Service × Region availability grid
+  - **Region Summary**: Region statistics with AZ counts
+  - **Service Summary**: Service coverage across regions
+  - **Statistics**: Overall metrics and insights
 
 ### 4. Intelligent Cache (`reports/cache/`)
 - **aws_data_cache.json**: TTL-based cache with automatic validation
@@ -344,24 +363,31 @@ python -m pytest tests/ -k "output"    # Output format tests only
 ## 📚 Documentation
 
 - **[Quick Reference](QUICK_REFERENCE.md)**: Command cheat sheet and common patterns
+- **[Development Guide](DEVELOPMENT.md)**: Pre-commit hooks setup and developer workflow
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)**: Common issues and solutions
 - **[Development Roadmap](ROADMAP.md)**: Planned features and improvements (updated)
 - **[Project Instructions](CLAUDE.md)**: Development guidelines and architecture
-- **CI/CD Pipeline**: [GitHub Actions](https://github.com/jxman/aws-services-reporter/actions) with full automation
+- **[AWS SSM Exploration](AWS_SSM_DATA_EXPLORATION.md)**: Technical deep-dive into data sources
 
 ## 🤝 Contributing
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Run full test suite** (`python -m pytest tests/ -v --cov=aws_services_reporter`)
-4. **Run code quality checks** (`black --check . && isort --check-only . && flake8 .`)
-5. **Run security scan** (`bandit -r . --severity-level medium`)
-6. **Commit** changes (`git commit -m 'Add amazing feature'`)
+3. **Set up development environment**:
+   ```bash
+   pip install -r requirements-dev.txt
+   pre-commit install  # Install pre-commit hooks
+   ```
+4. **Run full test suite** (`python -m pytest tests/ -v --cov=aws_services_reporter`)
+5. **Run code quality checks** (`pre-commit run --all-files`)
+6. **Commit** changes (`git commit -m 'Add amazing feature'`) - hooks run automatically
 7. **Push** to branch (`git push origin feature/amazing-feature`)
 8. **Open** a Pull Request (CI/CD will automatically validate)
 
 ### Quality Standards
 - ✅ All tests must pass (40+ tests across multiple Python versions)
-- ✅ Code must be formatted (black, isort) and linted (flake8)
+- ✅ Pre-commit hooks must pass (automatic formatting and quality checks)
+- ✅ Code must be formatted with black/isort (enforced by pre-commit)
 - ✅ Security scan must show no high/medium severity issues
 - ✅ Type checking should pass or have documented exceptions
 
