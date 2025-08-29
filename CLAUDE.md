@@ -226,7 +226,7 @@ python main.py --no-cache --quiet    # Force fresh data
 - **API documentation**: Sphinx-generated docs
 
 ### Performance Targets
-- **Maintain <5s cached runs** 
+- **Maintain <5s cached runs**
 - **<90s fresh data runs**
 - **Memory usage <100MB**
 - **Test coverage >80%**

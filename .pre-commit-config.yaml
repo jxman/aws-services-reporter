@@ -1,0 +1,41 @@
+# Pre-commit configuration for AWS Services Reporter
+# This file defines hooks that run automatically before each commit
+
+repos:
+  # Code formatting with Black
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        language_version: python3
+
+  # Import sorting with isort (compatible with Black)
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile=black]
+
+  # Basic file quality checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      # Remove trailing whitespace
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+
+      # Ensure files end with newline
+      - id: end-of-file-fixer
+
+      # Check for merge conflicts
+      - id: check-merge-conflict
+
+      # Check YAML syntax
+      - id: check-yaml
+
+      # Check Python AST (syntax errors)
+      - id: check-ast
+
+# Global configuration
+default_stages: [pre-commit]
+fail_fast: false

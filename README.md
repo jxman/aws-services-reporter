@@ -225,12 +225,12 @@ python main.py --quiet               # Minimal output
 {
   "generated_at": "2024-08-26T13:30:00.000000",
   "generator": {
-    "name": "AWS Services Reporter", 
+    "name": "AWS Services Reporter",
     "version": "1.3.0"
   },
   "summary": {
     "total_regions": 37,
-    "total_services": 394, 
+    "total_services": 394,
     "avg_services_per_region": 39.2,
     "most_available_service": "cloudformation",
     "least_available_service": "braket"
@@ -262,7 +262,7 @@ python main.py --quiet               # Minimal output
 
 ### Security Scan Results
 - **High Severity**: 0 issues ✅
-- **Medium Severity**: 0 issues ✅ 
+- **Medium Severity**: 0 issues ✅
 - **Low Severity**: Only test assertions and standard library usage (expected)
 
 ## 🚀 CI/CD Pipeline
@@ -297,6 +297,9 @@ All CI/CD jobs passing with comprehensive validation:
 # Install development dependencies
 pip install -r requirements-dev.txt
 
+# Install pre-commit hooks (RECOMMENDED)
+pre-commit install
+
 # Run full test suite (same as CI/CD)
 python -m pytest tests/ -v --cov=aws_services_reporter --cov-report=term-missing
 
@@ -313,6 +316,9 @@ safety check
 # Format code (development)
 black .
 isort .
+
+# Run all pre-commit hooks manually
+pre-commit run --all-files
 ```
 
 ### Testing

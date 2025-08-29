@@ -25,13 +25,13 @@ The AWS Services Reporter currently uses:
   ```
   /aws/service/global-infrastructure/services/ec2/longName
   → "Amazon Elastic Compute Cloud (EC2)"
-  
+
   /aws/service/global-infrastructure/services/s3/longName
   → "Amazon Simple Storage Service (S3)"
-  
+
   /aws/service/global-infrastructure/services/lambda/longName
   → "AWS Lambda"
-  
+
   /aws/service/global-infrastructure/services/bedrock/longName
   → "Amazon Bedrock"
   ```
@@ -51,10 +51,10 @@ The AWS Services Reporter currently uses:
   ```
   /aws/service/global-infrastructure/regions/us-east-1/longName
   → "US East (N. Virginia)"
-  
+
   /aws/service/global-infrastructure/regions/eu-west-1/longName
   → "Europe (Ireland)"
-  
+
   /aws/service/global-infrastructure/regions/ap-southeast-1/longName
   → "Asia Pacific (Singapore)"
   ```
@@ -109,7 +109,7 @@ The AWS Services Reporter currently uses:
   ```
   /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
   → "ami-0e95a5e2743ec9ec9"
-  
+
   /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64
   → "ami-00ca32bbc84273381"
   ```
@@ -130,7 +130,7 @@ The AWS Services Reporter currently uses:
   ```
   /aws/service/ecs/optimized-ami/amazon-linux-2/recommended
   → {"ecs_agent_version":"1.98.0","image_id":"ami-0a443363996ce3eb4",...}
-  
+
   /aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended
   → {"ecs_agent_version":"1.98.0","image_id":"ami-08d1b1b36ec3f587b",...}
   ```
@@ -222,7 +222,7 @@ windows_ami = ssm.get_parameter('/aws/service/ami-windows-latest/Windows_Server-
 ### Service Distribution by Region Type
 - **US East (N. Virginia)**: 389 services (100% baseline)
 - **Major EU Region**: 344 services (88% coverage)
-- **Major Asia Pacific**: 319 services (82% coverage) 
+- **Major Asia Pacific**: 319 services (82% coverage)
 - **Newer Regions**: 200-250 services (50-65% coverage)
 
 ### Regional Categories by Partition

@@ -44,7 +44,7 @@ pip install -r requirements.txt
 ### AWS Configuration Issues
 
 #### AWS Credentials Not Found
-**Problem**: 
+**Problem**:
 ```
 botocore.exceptions.NoCredentialsError: Unable to locate credentials
 ```
