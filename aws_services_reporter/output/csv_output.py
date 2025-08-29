@@ -44,21 +44,21 @@ def create_regions_services_csv(
 
     with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow([
-            "Region Code", "Region Name", "Service Code", "Service Name"
-        ])
+        writer.writerow(["Region Code", "Region Name", "Service Code", "Service Name"])
 
         # Write data sorted by region code
         for region_code in sorted(regions.keys()):
-            region_name = regions[region_code]['name']
+            region_name = regions[region_code]["name"]
             services = sorted(region_services.get(region_code, []))
 
             for service_code in services:
-                service_name = service_names.get(service_code, service_code) if service_names else service_code
-                
-                writer.writerow([
-                    region_code, region_name, service_code, service_name
-                ])
+                service_name = (
+                    service_names.get(service_code, service_code)
+                    if service_names
+                    else service_code
+                )
+
+                writer.writerow([region_code, region_name, service_code, service_name])
 
     if not quiet:
         total_rows = sum(len(services) for services in region_services.values())
@@ -116,7 +116,11 @@ def create_services_regions_matrix_csv(
         # Write matrix data
         for service_code in all_service_codes:
             # Use full service name if available, otherwise use service code
-            service_display = service_names.get(service_code, service_code) if service_names else service_code
+            service_display = (
+                service_names.get(service_code, service_code)
+                if service_names
+                else service_code
+            )
             row = [service_display]
             for region_code in sorted_regions:
                 # Check if service is available in this region
@@ -151,7 +155,7 @@ def create_region_summary_csv(
         quiet: Suppress progress output if True
 
     Creates:
-        CSV file with columns: Region Code, Region Name, Launch Year, Status, 
+        CSV file with columns: Region Code, Region Name, Launch Year, Status,
         Availability Zones, Service Count
         Each region gets one row with comprehensive information
     """
@@ -166,26 +170,18 @@ def create_region_summary_csv(
 
     with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow([
-            "Region Code", 
-            "Region Name", 
-            "Availability Zones", 
-            "Service Count"
-        ])
+        writer.writerow(
+            ["Region Code", "Region Name", "Availability Zones", "Service Count"]
+        )
 
         # Write data sorted by region code
         for region_code in sorted(regions.keys()):
             region_details = regions[region_code]
-            region_name = region_details['name']
+            region_name = region_details["name"]
             service_count = len(region_services.get(region_code, []))
-            az_count = region_details.get('az_count', 0)
-            
-            writer.writerow([
-                region_code, 
-                region_name, 
-                az_count, 
-                service_count
-            ])
+            az_count = region_details.get("az_count", 0)
+
+            writer.writerow([region_code, region_name, az_count, service_count])
 
     if not quiet:
         total_regions = len(regions)
@@ -229,36 +225,37 @@ def create_service_summary_csv(
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Get all unique services and calculate their coverage
-    all_service_codes = sorted(set().union(*region_services.values()) if region_services else [])
+    all_service_codes = sorted(
+        set().union(*region_services.values()) if region_services else []
+    )
     total_regions = len(regions)
-    
+
     with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow([
-            "Service Code", 
-            "Service Name", 
-            "Region Count", 
-            "Coverage %"
-        ])
+        writer.writerow(["Service Code", "Service Name", "Region Count", "Coverage %"])
 
         # Write data sorted by service code
         for service_code in all_service_codes:
-            service_name = service_names.get(service_code, service_code) if service_names else service_code
-            
+            service_name = (
+                service_names.get(service_code, service_code)
+                if service_names
+                else service_code
+            )
+
             # Count how many regions have this service
             available_regions = [
-                region_code for region_code, services in region_services.items()
+                region_code
+                for region_code, services in region_services.items()
                 if service_code in services
             ]
             region_count = len(available_regions)
-            coverage_percent = (region_count / total_regions * 100) if total_regions > 0 else 0
-            
-            writer.writerow([
-                service_code,
-                service_name,
-                region_count,
-                f"{coverage_percent:.1f}"
-            ])
+            coverage_percent = (
+                (region_count / total_regions * 100) if total_regions > 0 else 0
+            )
+
+            writer.writerow(
+                [service_code, service_name, region_count, f"{coverage_percent:.1f}"]
+            )
 
     if not quiet:
         print(

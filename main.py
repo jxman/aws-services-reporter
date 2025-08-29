@@ -133,10 +133,12 @@ def main() -> None:
             regions = get_all_regions_and_names(config, session, quiet)
             region_services = get_services_per_region(config, session, quiet)
             service_names = get_all_services_with_names(config, session, quiet)
-            
+
             # Conditionally fetch enhanced metadata
             if config.enhanced_metadata:
-                enhanced_services = get_services_per_region_enhanced(config, session, quiet)
+                enhanced_services = get_services_per_region_enhanced(
+                    config, session, quiet
+                )
             else:
                 if not quiet:
                     print("⚡ Skipping enhanced metadata for faster execution")
@@ -152,7 +154,9 @@ def main() -> None:
 
             # Save to cache if enabled
             if config.cache_enabled:
-                if cache.save(regions, region_services, service_names, enhanced_services, metadata):
+                if cache.save(
+                    regions, region_services, service_names, enhanced_services, metadata
+                ):
                     progress.print_status("💾 Data cached for future runs", "green")
 
         # Generate outputs
@@ -168,7 +172,14 @@ def main() -> None:
         # Generate requested formats
         for format_type in config.output_formats:
             if format_type == "csv":
-                create_regions_services_csv(config, regions, region_services, service_names, enhanced_services, quiet)
+                create_regions_services_csv(
+                    config,
+                    regions,
+                    region_services,
+                    service_names,
+                    enhanced_services,
+                    quiet,
+                )
                 create_services_regions_matrix_csv(
                     config, regions, region_services, service_names, quiet
                 )
@@ -176,13 +187,25 @@ def main() -> None:
 
             elif format_type == "json":
                 if create_json_output(
-                    config, regions, region_services, service_names, enhanced_services, metadata, quiet
+                    config,
+                    regions,
+                    region_services,
+                    service_names,
+                    enhanced_services,
+                    metadata,
+                    quiet,
                 ):
                     output_success.append("JSON")
 
             elif format_type == "excel":
                 if create_excel_output(
-                    config, regions, region_services, service_names, enhanced_services, metadata, quiet
+                    config,
+                    regions,
+                    region_services,
+                    service_names,
+                    enhanced_services,
+                    metadata,
+                    quiet,
                 ):
                     output_success.append("Excel")
 
@@ -191,7 +214,9 @@ def main() -> None:
                 output_success.append("Region Summary")
 
             elif format_type == "service-summary":
-                create_service_summary_csv(config, regions, region_services, service_names, quiet)
+                create_service_summary_csv(
+                    config, regions, region_services, service_names, quiet
+                )
                 output_success.append("Service Summary")
 
         # Show completion summary

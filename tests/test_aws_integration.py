@@ -98,30 +98,36 @@ class TestAWSIntegration:
                     return {"Parameter": {"Value": "aws"}}
                 else:
                     raise Exception("Parameter not found")
-            
+
             mock_get.side_effect = mock_parameter_response
-            
-            with unittest.mock.patch('aws_services_reporter.aws_client.ssm_client.get_all_parameters_by_path') as mock_az:
-                mock_az.return_value = [{"Value": "us-east-1a"}, {"Value": "us-east-1b"}, {"Value": "us-east-1c"}]
-                
+
+            with unittest.mock.patch(
+                "aws_services_reporter.aws_client.ssm_client.get_all_parameters_by_path"
+            ) as mock_az:
+                mock_az.return_value = [
+                    {"Value": "us-east-1a"},
+                    {"Value": "us-east-1b"},
+                    {"Value": "us-east-1c"},
+                ]
+
                 details = get_region_details(self.ssm, "us-east-1")
 
-                assert details['code'] == "us-east-1"
-                assert details['name'] == "US East (N. Virginia)"
-                assert details['launch_date'] == "2006-08-25"
-                assert details['partition'] == "aws"
-                assert details['az_count'] == 3
+                assert details["code"] == "us-east-1"
+                assert details["name"] == "US East (N. Virginia)"
+                assert details["launch_date"] == "2006-08-25"
+                assert details["partition"] == "aws"
+                assert details["az_count"] == 3
 
     def test_get_region_details_error_handling(self):
         """Test region details fetching with non-existent region."""
         details = get_region_details(self.ssm, "non-existent-region")
 
         # Should fallback to defaults
-        assert details['code'] == "non-existent-region"
-        assert details['name'] == "non-existent-region"
-        assert details['launch_date'] == "Unknown"
-        assert details['partition'] == "Unknown"
-        assert details['az_count'] == 0
+        assert details["code"] == "non-existent-region"
+        assert details["name"] == "non-existent-region"
+        assert details["launch_date"] == "Unknown"
+        assert details["partition"] == "Unknown"
+        assert details["az_count"] == 0
 
     @pytest.mark.skip(
         reason="These functions use real AWS parameter paths - need integration environment"
@@ -136,7 +142,7 @@ class TestAWSIntegration:
         assert len(regions) == len(self.test_regions)
 
         for region_code, expected_name in self.test_regions.items():
-            assert regions[region_code]['name'] == expected_name
+            assert regions[region_code]["name"] == expected_name
 
     @pytest.mark.skip(
         reason="These functions use real AWS parameter paths - need integration environment"

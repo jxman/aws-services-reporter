@@ -74,19 +74,21 @@ def create_excel_output(
         ws_regional = wb.create_sheet("Regional Services")
         regional_data = []
         for region_code in sorted(regions.keys()):
-            region_name = regions[region_code]['name']
+            region_name = regions[region_code]["name"]
             services = sorted(region_services.get(region_code, []))
             for service_code in services:
-                service_name = service_names.get(service_code, service_code) if service_names else service_code
-                
-                regional_data.append([
-                    region_code, region_name, service_code, service_name
-                ])
+                service_name = (
+                    service_names.get(service_code, service_code)
+                    if service_names
+                    else service_code
+                )
+
+                regional_data.append(
+                    [region_code, region_name, service_code, service_name]
+                )
 
         # Add headers and data
-        headers = [
-            "Region Code", "Region Name", "Service Code", "Service Name"
-        ]
+        headers = ["Region Code", "Region Name", "Service Code", "Service Name"]
         ws_regional.append(headers)
         for row in regional_data:
             ws_regional.append(row)
@@ -111,7 +113,11 @@ def create_excel_output(
         # Create matrix data with full service names
         for service_code in all_service_codes:
             # Use full service name if available, otherwise use service code
-            service_display = service_names.get(service_code, service_code) if service_names else service_code
+            service_display = (
+                service_names.get(service_code, service_code)
+                if service_names
+                else service_code
+            )
             row = [service_display]
             for region_code in sorted_regions:
                 available = (
@@ -147,23 +153,18 @@ def create_excel_output(
         summary_data = []
         for region_code in sorted(regions.keys()):
             region_details = regions[region_code]
-            region_name = region_details['name']
+            region_name = region_details["name"]
             service_count = len(region_services.get(region_code, []))
-            az_count = region_details.get('az_count', 0)
-            
-            summary_data.append([
-                region_code, 
-                region_name, 
-                az_count, 
-                service_count
-            ])
+            az_count = region_details.get("az_count", 0)
+
+            summary_data.append([region_code, region_name, az_count, service_count])
 
         # Add headers and data
         summary_headers = [
-            "Region Code", 
-            "Region Name", 
-            "Availability Zones", 
-            "Service Count"
+            "Region Code",
+            "Region Name",
+            "Availability Zones",
+            "Service Count",
         ]
         ws_summary.append(summary_headers)
         for row in summary_data:
@@ -187,35 +188,41 @@ def create_excel_output(
         ws_service_summary = wb.create_sheet("Service Summary")
 
         # Get all unique services and calculate their coverage
-        all_service_codes = sorted(set().union(*region_services.values()) if region_services else [])
+        all_service_codes = sorted(
+            set().union(*region_services.values()) if region_services else []
+        )
         total_regions = len(regions)
-        
+
         # Create service summary data
         service_summary_data = []
         for service_code in all_service_codes:
-            service_name = service_names.get(service_code, service_code) if service_names else service_code
-            
+            service_name = (
+                service_names.get(service_code, service_code)
+                if service_names
+                else service_code
+            )
+
             # Count how many regions have this service
             available_regions = [
-                region_code for region_code, services in region_services.items()
+                region_code
+                for region_code, services in region_services.items()
                 if service_code in services
             ]
             region_count = len(available_regions)
-            coverage_percent = (region_count / total_regions * 100) if total_regions > 0 else 0
-            
-            service_summary_data.append([
-                service_code,
-                service_name,
-                region_count,
-                f"{coverage_percent:.1f}%"
-            ])
+            coverage_percent = (
+                (region_count / total_regions * 100) if total_regions > 0 else 0
+            )
+
+            service_summary_data.append(
+                [service_code, service_name, region_count, f"{coverage_percent:.1f}%"]
+            )
 
         # Add headers and data
         service_summary_headers = [
-            "Service Code", 
-            "Service Name", 
-            "Region Count", 
-            "Coverage %"
+            "Service Code",
+            "Service Name",
+            "Region Count",
+            "Coverage %",
         ]
         ws_service_summary.append(service_summary_headers)
         for row in service_summary_data:
@@ -253,7 +260,11 @@ def create_excel_output(
                 if service_code in services
             ]
             # Use full name if available for display
-            service_display = service_names.get(service_code, service_code) if service_names else service_code
+            service_display = (
+                service_names.get(service_code, service_code)
+                if service_names
+                else service_code
+            )
             service_coverage[service_display] = len(available_regions)
 
         most_available = (

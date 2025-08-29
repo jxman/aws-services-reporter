@@ -105,13 +105,13 @@ def get_region_details(
         Falls back to minimal data if information cannot be retrieved
     """
     logger = logging.getLogger(__name__)
-    
+
     result = {
-        'code': region_code,
-        'name': region_code,  # Fallback to code
-        'launch_date': 'Unknown',
-        'partition': 'Unknown',
-        'az_count': 0
+        "code": region_code,
+        "name": region_code,  # Fallback to code
+        "launch_date": "Unknown",
+        "partition": "Unknown",
+        "az_count": 0,
     }
 
     # Get region name
@@ -120,7 +120,7 @@ def get_region_details(
             response = ssm.get_parameter(
                 Name=f"/aws/service/global-infrastructure/regions/{region_code}/longName"
             )
-            result['name'] = response["Parameter"]["Value"]
+            result["name"] = response["Parameter"]["Value"]
             break
         except ClientError as e:
             error_code = e.response["Error"]["Code"]
@@ -146,7 +146,7 @@ def get_region_details(
             response = ssm.get_parameter(
                 Name=f"/aws/service/global-infrastructure/regions/{region_code}/launchDate"
             )
-            result['launch_date'] = response["Parameter"]["Value"]
+            result["launch_date"] = response["Parameter"]["Value"]
             break
         except ClientError as e:
             error_code = e.response["Error"]["Code"]
@@ -169,7 +169,7 @@ def get_region_details(
             response = ssm.get_parameter(
                 Name=f"/aws/service/global-infrastructure/regions/{region_code}/partition"
             )
-            result['partition'] = response["Parameter"]["Value"]
+            result["partition"] = response["Parameter"]["Value"]
             break
         except ClientError as e:
             error_code = e.response["Error"]["Code"]
@@ -189,12 +189,14 @@ def get_region_details(
     # Get availability zones count
     try:
         az_params = get_all_parameters_by_path(
-            ssm, f"/aws/service/global-infrastructure/regions/{region_code}/availability-zones", max_retries
+            ssm,
+            f"/aws/service/global-infrastructure/regions/{region_code}/availability-zones",
+            max_retries,
         )
-        result['az_count'] = len(az_params)
+        result["az_count"] = len(az_params)
     except Exception as e:
         logger.debug(f"Failed to get AZ count for region {region_code}: {e}")
-        result['az_count'] = 0
+        result["az_count"] = 0
 
     return result
 
@@ -262,15 +264,17 @@ def get_all_regions_and_names(
         for future in as_completed(future_to_region):
             completed_count += 1
             details = future.result()
-            code = details['code']
+            code = details["code"]
             regions[code] = {
-                'name': details['name'],
-                'launch_date': details['launch_date'], 
-                'partition': details['partition'],
-                'az_count': details['az_count']
+                "name": details["name"],
+                "launch_date": details["launch_date"],
+                "partition": details["partition"],
+                "az_count": details["az_count"],
             }
             if not quiet:
-                print(f"    🌍 {completed_count}/{len(region_params)}: {code} → {details['name']} (AZs: {details['az_count']})")
+                print(
+                    f"    🌍 {completed_count}/{len(region_params)}: {code} → {details['name']} (AZs: {details['az_count']})"
+                )
 
     logger.info(f"Successfully fetched {len(regions)} region details")
     return regions
@@ -347,9 +351,7 @@ def get_services_per_region(
     return region_services
 
 
-def get_service_name(
-    ssm: Any, service_code: str, max_retries: int = 3
-) -> str:
+def get_service_name(ssm: Any, service_code: str, max_retries: int = 3) -> str:
     """Get service display name with error handling and retries.
 
     Args:
@@ -448,12 +450,12 @@ def get_all_services_with_names(
             service_name = future.result()
             services[service_code] = service_name
             if not quiet:
-                print(f"    📋 {completed_count}/{len(service_params)}: {service_code} → {service_name}")
+                print(
+                    f"    📋 {completed_count}/{len(service_params)}: {service_code} → {service_name}"
+                )
 
     logger.info(f"Successfully fetched {len(services)} service names")
     return services
-
-
 
 
 def get_services_per_region_enhanced(
@@ -462,7 +464,7 @@ def get_services_per_region_enhanced(
     """Fetch AWS services per region with enhanced service names (streamlined version).
 
     This version only fetches data that actually exists in AWS Parameter Store.
-    Currently, only service longNames are available - categories, descriptions, 
+    Currently, only service longNames are available - categories, descriptions,
     launch dates, and status are not available in the public Parameter Store.
 
     Args:
@@ -491,31 +493,37 @@ def get_services_per_region_enhanced(
 
     # Get basic region services mapping
     region_services = get_services_per_region(config, session, quiet)
-    
+
     # Get service names (this is the only enhanced metadata actually available)
     service_names = get_all_services_with_names(config, session, quiet)
-    
+
     if not quiet:
         print("  ⏳ Building enhanced service metadata...")
-    
+
     enhanced_services = {}
-    
+
     # Create enhanced metadata with only available data
     for region_code, services in region_services.items():
         enhanced_services[region_code] = {}
         for service_code in services:
             enhanced_services[region_code][service_code] = {
                 # Only include data we can actually retrieve
-                'name': service_names.get(service_code, service_code),
-                'status': 'available'  # If it's in the region, it's available
+                "name": service_names.get(service_code, service_code),
+                "status": "available",  # If it's in the region, it's available
             }
-    
-    total_service_entries = sum(len(services) for services in enhanced_services.values())
-    
+
+    total_service_entries = sum(
+        len(services) for services in enhanced_services.values()
+    )
+
     if not quiet:
-        print(f"  ✓ Enhanced service metadata complete: {len(enhanced_services)} regions, {total_service_entries:,} service entries")
-    
-    logger.info(f"Created enhanced service metadata for {len(enhanced_services)} regions ({total_service_entries:,} entries)")
+        print(
+            f"  ✓ Enhanced service metadata complete: {len(enhanced_services)} regions, {total_service_entries:,} service entries"
+        )
+
+    logger.info(
+        f"Created enhanced service metadata for {len(enhanced_services)} regions ({total_service_entries:,} entries)"
+    )
     return enhanced_services
 
 
