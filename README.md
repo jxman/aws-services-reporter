@@ -72,16 +72,16 @@ aws-services/
 │   └── cache/                    # Cache files
 ├── tests/                        # Comprehensive test suite (80%+ coverage)
 ├── .pre-commit-config.yaml       # Pre-commit hooks configuration
+├── README.md                     # Main documentation
+├── QUICK_REFERENCE.md            # Command cheat sheet  
+├── TROUBLESHOOTING.md            # Common issues guide
+├── ROADMAP.md                    # Development roadmap
 ├── DEVELOPMENT.md                # Developer setup guide
+├── AWS_SSM_DATA_EXPLORATION.md   # Technical deep-dive
+├── CLAUDE.md                     # Project instructions
 ├── main.py                       # Application entry point
 ├── requirements.txt              # Runtime dependencies
-├── requirements-dev.txt          # Development dependencies (includes pre-commit)
-└── documentation/                # Comprehensive guides
-    ├── README.md                 # Main documentation
-    ├── QUICK_REFERENCE.md        # Command cheat sheet
-    ├── TROUBLESHOOTING.md        # Common issues guide
-    ├── ROADMAP.md                # Development roadmap
-    └── AWS_SSM_DATA_EXPLORATION.md # Technical deep-dive
+└── requirements-dev.txt          # Development dependencies (includes pre-commit)
 ```
 
 ## 🚀 Quick Start
