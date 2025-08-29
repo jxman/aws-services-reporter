@@ -89,7 +89,12 @@ class TestOutputFormats:
         assert len(rows) == 6
 
         # Verify header (updated to match current CSV format)
-        assert reader.fieldnames == ["Region Code", "Region Name", "Service Code", "Service Name"]
+        assert reader.fieldnames == [
+            "Region Code",
+            "Region Name",
+            "Service Code",
+            "Service Name",
+        ]
 
         # Verify some specific entries
         us_east_rows = [row for row in rows if row["Region Code"] == "us-east-1"]
@@ -157,7 +162,12 @@ class TestOutputFormats:
         assert len(rows) == 3
 
         # Verify header (updated to match current CSV format with AZ column)
-        assert reader.fieldnames == ["Region Code", "Region Name", "Availability Zones", "Service Count"]
+        assert reader.fieldnames == [
+            "Region Code",
+            "Region Name",
+            "Availability Zones",
+            "Service Count",
+        ]
 
         # Create lookup for easy testing
         region_summary = {row["Region Code"]: row for row in rows}
@@ -225,7 +235,9 @@ class TestOutputFormats:
         assert regions_data["us-east-1"]["name"] == "US East (N. Virginia)"
         assert regions_data["us-east-1"]["service_count"] == 3
         # Services are now a list of dictionaries with 'code' and 'name' keys
-        service_codes = {service["code"] for service in regions_data["us-east-1"]["services"]}
+        service_codes = {
+            service["code"] for service in regions_data["us-east-1"]["services"]
+        }
         assert service_codes == {"ec2", "lambda", "s3"}
 
         # Verify services data with coverage
@@ -288,7 +300,9 @@ class TestOutputFormats:
                     # Check data rows (should have 3 regions)
                     assert ws_summary.max_row == 4  # 1 header + 3 data rows
                     # Note: Excel might have extra columns, so just check we have at least 4
-                    assert ws_summary.max_column >= 4  # At least: Region Code, Name, AZs, Service Count
+                    assert (
+                        ws_summary.max_column >= 4
+                    )  # At least: Region Code, Name, AZs, Service Count
                     wb.close()
                 except ImportError:
                     # openpyxl not available for testing, but file was created
@@ -438,7 +452,9 @@ class TestOutputFormats:
 
         assert "us-east-1" in data["regions"]
         # Services are now a list of dictionaries with 'code' and 'name' keys
-        service_codes = {service["code"] for service in data["regions"]["us-east-1"]["services"]}
+        service_codes = {
+            service["code"] for service in data["regions"]["us-east-1"]["services"]
+        }
         assert "service-with-dashes" in service_codes
 
 
