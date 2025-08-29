@@ -46,7 +46,7 @@ Examples:
     )
 
     # Output formats
-    valid_formats = ["csv", "json", "excel", "region-summary"]
+    valid_formats = ["csv", "json", "excel", "region-summary", "service-summary"]
     parser.add_argument(
         "--format",
         nargs="+",
@@ -82,6 +82,10 @@ Examples:
     # Caching system
     parser.add_argument(
         "--no-cache", action="store_true", help="Disable caching and fetch fresh data"
+    )
+    parser.add_argument(
+        "--no-enhanced-metadata", action="store_true", 
+        help="Disable enhanced metadata fetching (launch dates, categories, etc.) for faster execution"
     )
     parser.add_argument(
         "--cache-hours",

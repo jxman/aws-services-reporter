@@ -105,15 +105,19 @@ class AWSDataCache:
 
     def save(
         self,
-        regions: Dict[str, str],
+        regions: Dict[str, Any],
         region_services: Dict[str, List[str]],
+        service_names: Optional[Dict[str, str]] = None,
+        enhanced_services: Optional[Dict[str, Any]] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """Save data to cache with metadata and automatic statistics.
 
         Args:
-            regions: Dictionary mapping region codes to region names
+            regions: Dictionary mapping region codes to region details
             region_services: Dictionary mapping region codes to service lists
+            service_names: Dictionary mapping service codes to display names
+            enhanced_services: Dictionary with enhanced service metadata per region
             metadata: Optional metadata about the fetch operation
 
         Returns:
@@ -127,6 +131,8 @@ class AWSDataCache:
                 "timestamp": datetime.now().isoformat(),
                 "regions": regions,
                 "region_services": region_services,
+                "service_names": service_names or {},
+                "enhanced_services": enhanced_services or {},
                 "metadata": metadata or {},
                 "cache_info": {
                     "version": "1.3.0",

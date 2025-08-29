@@ -25,7 +25,7 @@ python main.py --cache-hours 1     # Cache for 1 hour only
 ```bash
 python main.py --format csv               # reports/csv/ (default)
 python main.py --format json              # reports/json/ with metadata
-python main.py --format excel             # reports/excel/ with 4 sheets
+python main.py --format excel             # reports/excel/ with multiple sheets
 python main.py --format region-summary    # reports/csv/ region summary only
 python main.py --format csv json excel    # All formats in subdirectories
 python main.py --format csv region-summary# CSV + region summary
@@ -156,6 +156,7 @@ gh run view [RUN_ID]               # Detailed run info
 | **Test Coverage** | ✅ 80%+ | 40 tests across Python 3.8-3.11 |
 | **Documentation** | ✅ Complete | Comprehensive guides |
 | **Production Ready** | ✅ Yes | Fully validated and tested |
+| **Project Cleanup** | ✅ Complete | Obsolete files removed |
 
 ---
 

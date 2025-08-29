@@ -28,6 +28,7 @@ class Config:
         cache_file: Cache file name
         use_rich: Use Rich library for enhanced output
         output_formats: List of output formats to generate
+        enhanced_metadata: Enable enhanced metadata fetching
     """
 
     output_dir: str = "reports"
@@ -43,6 +44,7 @@ class Config:
     cache_file: str = "cache/aws_data_cache.json"
     use_rich: bool = True
     output_formats: Optional[List[str]] = None
+    enhanced_metadata: bool = True
 
 
 def create_config_from_args(args: argparse.Namespace) -> Config:
@@ -68,6 +70,7 @@ def create_config_from_args(args: argparse.Namespace) -> Config:
         cache_file=args.cache_file,
         use_rich=not getattr(args, "quiet", False),
         output_formats=args.format,
+        enhanced_metadata=not getattr(args, "no_enhanced_metadata", False),
     )
 
 

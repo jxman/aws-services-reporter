@@ -83,10 +83,10 @@ def get_all_parameters_by_path(
     )
 
 
-def get_region_name(
+def get_region_details(
     ssm: Any, region_code: str, max_retries: int = 3
-) -> Tuple[str, str]:
-    """Get region name with error handling and retries.
+) -> Dict[str, Any]:
+    """Get comprehensive region information with error handling and retries.
 
     Args:
         ssm: Boto3 SSM client instance
@@ -94,42 +94,115 @@ def get_region_name(
         max_retries: Maximum retry attempts for failed API calls
 
     Returns:
-        Tuple of (region_code, region_name)
-        Falls back to (region_code, region_code) if name cannot be retrieved
+        Dictionary with region details:
+        {
+            'code': str,
+            'name': str,
+            'launch_date': str,
+            'partition': str,
+            'az_count': int
+        }
+        Falls back to minimal data if information cannot be retrieved
     """
     logger = logging.getLogger(__name__)
+    
+    result = {
+        'code': region_code,
+        'name': region_code,  # Fallback to code
+        'launch_date': 'Unknown',
+        'partition': 'Unknown',
+        'az_count': 0
+    }
 
+    # Get region name
     for attempt in range(max_retries):
         try:
             response = ssm.get_parameter(
                 Name=f"/aws/service/global-infrastructure/regions/{region_code}/longName"
             )
-            return region_code, response["Parameter"]["Value"]
+            result['name'] = response["Parameter"]["Value"]
+            break
         except ClientError as e:
             error_code = e.response["Error"]["Code"]
             if error_code == "Throttling" and attempt < max_retries - 1:
                 wait_time = (2**attempt) + random.uniform(0, 1)
                 logger.warning(
-                    f"Rate limited for region {region_code}, waiting {wait_time:.2f}s"
+                    f"Rate limited for region {region_code} name, waiting {wait_time:.2f}s"
                 )
                 time.sleep(wait_time)
                 continue
             else:
                 logger.warning(f"Failed to get name for region {region_code}: {e}")
-                return region_code, region_code  # Fallback to code
+                break
         except Exception as e:
-            logger.warning(f"Unexpected error for region {region_code}: {e}")
+            logger.warning(f"Unexpected error for region {region_code} name: {e}")
             if attempt == max_retries - 1:
-                return region_code, region_code  # Fallback to code
+                break
             time.sleep(2**attempt)
 
-    return region_code, region_code
+    # Get region launch date
+    for attempt in range(max_retries):
+        try:
+            response = ssm.get_parameter(
+                Name=f"/aws/service/global-infrastructure/regions/{region_code}/launchDate"
+            )
+            result['launch_date'] = response["Parameter"]["Value"]
+            break
+        except ClientError as e:
+            error_code = e.response["Error"]["Code"]
+            if error_code == "Throttling" and attempt < max_retries - 1:
+                wait_time = (2**attempt) + random.uniform(0, 1)
+                time.sleep(wait_time)
+                continue
+            else:
+                logger.debug(f"Failed to get launch date for region {region_code}: {e}")
+                break
+        except Exception as e:
+            logger.debug(f"Unexpected error for region {region_code} launch date: {e}")
+            if attempt == max_retries - 1:
+                break
+            time.sleep(2**attempt)
+
+    # Get region partition
+    for attempt in range(max_retries):
+        try:
+            response = ssm.get_parameter(
+                Name=f"/aws/service/global-infrastructure/regions/{region_code}/partition"
+            )
+            result['partition'] = response["Parameter"]["Value"]
+            break
+        except ClientError as e:
+            error_code = e.response["Error"]["Code"]
+            if error_code == "Throttling" and attempt < max_retries - 1:
+                wait_time = (2**attempt) + random.uniform(0, 1)
+                time.sleep(wait_time)
+                continue
+            else:
+                logger.debug(f"Failed to get partition for region {region_code}: {e}")
+                break
+        except Exception as e:
+            logger.debug(f"Unexpected error for region {region_code} partition: {e}")
+            if attempt == max_retries - 1:
+                break
+            time.sleep(2**attempt)
+
+    # Get availability zones count
+    try:
+        az_params = get_all_parameters_by_path(
+            ssm, f"/aws/service/global-infrastructure/regions/{region_code}/availability-zones", max_retries
+        )
+        result['az_count'] = len(az_params)
+    except Exception as e:
+        logger.debug(f"Failed to get AZ count for region {region_code}: {e}")
+        result['az_count'] = 0
+
+    return result
 
 
 def get_all_regions_and_names(
     config: Config, session: boto3.Session, quiet: bool = False
-) -> Dict[str, str]:
-    """Fetch all AWS regions and their display names using concurrent processing.
+) -> Dict[str, Dict[str, Any]]:
+    """Fetch all AWS regions and their comprehensive details using concurrent processing.
 
     Args:
         config: Configuration object with AWS settings
@@ -137,8 +210,15 @@ def get_all_regions_and_names(
         quiet: Suppress progress output if True
 
     Returns:
-        Dictionary mapping region codes to display names
-        Example: {'us-east-1': 'US East (N. Virginia)'}
+        Dictionary mapping region codes to region details dictionaries
+        Example: {
+            'us-east-1': {
+                'name': 'US East (N. Virginia)',
+                'launch_date': '2006-08-25',
+                'partition': 'aws',
+                'az_count': 6
+            }
+        }
 
     Raises:
         Exception: If region fetching fails completely
@@ -159,21 +239,21 @@ def get_all_regions_and_names(
     if not quiet:
         print(f"  ✓ Found {len(region_params)} regions")
         print(
-            f"  ⏳ Fetching region names (using {config.max_workers} concurrent workers)..."
+            f"  ⏳ Fetching region details (using {config.max_workers} concurrent workers)..."
         )
 
     regions = {}
 
     # Create separate SSM clients for each thread to avoid session conflicts
     with ThreadPoolExecutor(max_workers=config.max_workers) as executor:
-        # Submit all region name fetching tasks
+        # Submit all region detail fetching tasks
         future_to_region = {}
         for region in region_params:
             region_code = region["Value"]
             # Create a new SSM client for each thread
             thread_ssm = session.client("ssm", region_name=config.aws_region)
             future = executor.submit(
-                get_region_name, thread_ssm, region_code, config.max_retries
+                get_region_details, thread_ssm, region_code, config.max_retries
             )
             future_to_region[future] = region_code
 
@@ -181,12 +261,18 @@ def get_all_regions_and_names(
         completed_count = 0
         for future in as_completed(future_to_region):
             completed_count += 1
-            code, name = future.result()
-            regions[code] = name
+            details = future.result()
+            code = details['code']
+            regions[code] = {
+                'name': details['name'],
+                'launch_date': details['launch_date'], 
+                'partition': details['partition'],
+                'az_count': details['az_count']
+            }
             if not quiet:
-                print(f"    🌍 {completed_count}/{len(region_params)}: {code} → {name}")
+                print(f"    🌍 {completed_count}/{len(region_params)}: {code} → {details['name']} (AZs: {details['az_count']})")
 
-    logger.info(f"Successfully fetched {len(regions)} region names")
+    logger.info(f"Successfully fetched {len(regions)} region details")
     return regions
 
 
@@ -259,6 +345,178 @@ def get_services_per_region(
 
     logger.info(f"Mapped {len(service_params)} services across regions")
     return region_services
+
+
+def get_service_name(
+    ssm: Any, service_code: str, max_retries: int = 3
+) -> str:
+    """Get service display name with error handling and retries.
+
+    Args:
+        ssm: Boto3 SSM client instance
+        service_code: AWS service code (e.g., 'ec2', 'lambda')
+        max_retries: Maximum retry attempts for failed API calls
+
+    Returns:
+        Service display name, falls back to service code if name cannot be retrieved
+    """
+    logger = logging.getLogger(__name__)
+
+    for attempt in range(max_retries):
+        try:
+            response = ssm.get_parameter(
+                Name=f"/aws/service/global-infrastructure/services/{service_code}/longName"
+            )
+            return response["Parameter"]["Value"]
+        except ClientError as e:
+            error_code = e.response["Error"]["Code"]
+            if error_code == "Throttling" and attempt < max_retries - 1:
+                wait_time = (2**attempt) + random.uniform(0, 1)
+                logger.debug(
+                    f"Rate limited for service {service_code}, waiting {wait_time:.2f}s"
+                )
+                time.sleep(wait_time)
+                continue
+            else:
+                logger.debug(f"Failed to get name for service {service_code}: {e}")
+                return service_code  # Fallback to code
+        except Exception as e:
+            logger.debug(f"Unexpected error for service {service_code}: {e}")
+            if attempt == max_retries - 1:
+                return service_code  # Fallback to code
+            time.sleep(2**attempt)
+
+    return service_code
+
+
+def get_all_services_with_names(
+    config: Config, session: boto3.Session, quiet: bool = False
+) -> Dict[str, str]:
+    """Fetch all AWS services with their display names using concurrent processing.
+
+    Args:
+        config: Configuration object with AWS settings
+        session: Boto3 session for API calls
+        quiet: Suppress progress output if True
+
+    Returns:
+        Dictionary mapping service codes to display names
+        Example: {'ec2': 'Amazon Elastic Compute Cloud', 's3': 'Amazon Simple Storage Service'}
+
+    Raises:
+        Exception: If service fetching fails completely
+    """
+    logger = logging.getLogger(__name__)
+    if not quiet:
+        print("📋 Fetching AWS service names...")
+
+    ssm = session.client("ssm", region_name=config.aws_region)
+
+    # Get all service codes
+    if not quiet:
+        print("  ⏳ Getting service codes from SSM...")
+    service_params = get_all_parameters_by_path(
+        ssm, "/aws/service/global-infrastructure/services", config.max_retries
+    )
+
+    if not quiet:
+        print(f"  ✓ Found {len(service_params)} services")
+        print(
+            f"  ⏳ Fetching service names (using {config.max_workers} concurrent workers)..."
+        )
+
+    services = {}
+
+    # Create separate SSM clients for each thread to avoid session conflicts
+    with ThreadPoolExecutor(max_workers=config.max_workers) as executor:
+        # Submit all service name fetching tasks
+        future_to_service = {}
+        for service in service_params:
+            service_code = service["Value"]
+            # Create a new SSM client for each thread
+            thread_ssm = session.client("ssm", region_name=config.aws_region)
+            future = executor.submit(
+                get_service_name, thread_ssm, service_code, config.max_retries
+            )
+            future_to_service[future] = service_code
+
+        # Collect results as they complete
+        completed_count = 0
+        for future in as_completed(future_to_service):
+            completed_count += 1
+            service_code = future_to_service[future]
+            service_name = future.result()
+            services[service_code] = service_name
+            if not quiet:
+                print(f"    📋 {completed_count}/{len(service_params)}: {service_code} → {service_name}")
+
+    logger.info(f"Successfully fetched {len(services)} service names")
+    return services
+
+
+
+
+def get_services_per_region_enhanced(
+    config: Config, session: boto3.Session, quiet: bool = False
+) -> Dict[str, Dict[str, Dict[str, Any]]]:
+    """Fetch AWS services per region with enhanced service names (streamlined version).
+
+    This version only fetches data that actually exists in AWS Parameter Store.
+    Currently, only service longNames are available - categories, descriptions, 
+    launch dates, and status are not available in the public Parameter Store.
+
+    Args:
+        config: Configuration object with AWS settings and concurrency limits
+        session: Boto3 session for API calls
+        quiet: Suppress progress output if True
+
+    Returns:
+        Dictionary mapping region codes to service dictionaries with available metadata
+        Example: {
+            'us-east-1': {
+                'ec2': {
+                    'name': 'Amazon Elastic Compute Cloud (EC2)',
+                    'status': 'available',
+                    'availability': 'Available'
+                }
+            }
+        }
+
+    Raises:
+        Exception: If service fetching fails completely
+    """
+    logger = logging.getLogger(__name__)
+    if not quiet:
+        print("\n🔧 Creating enhanced service mapping with full names...")
+
+    # Get basic region services mapping
+    region_services = get_services_per_region(config, session, quiet)
+    
+    # Get service names (this is the only enhanced metadata actually available)
+    service_names = get_all_services_with_names(config, session, quiet)
+    
+    if not quiet:
+        print("  ⏳ Building enhanced service metadata...")
+    
+    enhanced_services = {}
+    
+    # Create enhanced metadata with only available data
+    for region_code, services in region_services.items():
+        enhanced_services[region_code] = {}
+        for service_code in services:
+            enhanced_services[region_code][service_code] = {
+                # Only include data we can actually retrieve
+                'name': service_names.get(service_code, service_code),
+                'status': 'available'  # If it's in the region, it's available
+            }
+    
+    total_service_entries = sum(len(services) for services in enhanced_services.values())
+    
+    if not quiet:
+        print(f"  ✓ Enhanced service metadata complete: {len(enhanced_services)} regions, {total_service_entries:,} service entries")
+    
+    logger.info(f"Created enhanced service metadata for {len(enhanced_services)} regions ({total_service_entries:,} entries)")
+    return enhanced_services
 
 
 def get_all_services() -> List[str]:

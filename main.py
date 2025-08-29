@@ -13,7 +13,9 @@ from pathlib import Path
 from aws_services_reporter.aws_client.session import create_session
 from aws_services_reporter.aws_client.ssm_client import (
     get_all_regions_and_names,
+    get_all_services_with_names,
     get_services_per_region,
+    get_services_per_region_enhanced,
 )
 from aws_services_reporter.core.cache import AWSDataCache
 
@@ -23,6 +25,7 @@ from aws_services_reporter.core.progress import ProgressTracker
 from aws_services_reporter.output.csv_output import (
     create_region_summary_csv,
     create_regions_services_csv,
+    create_service_summary_csv,
     create_services_regions_matrix_csv,
 )
 from aws_services_reporter.output.excel_output import create_excel_output
@@ -112,6 +115,8 @@ def main() -> None:
                 progress.print_status("✅ Using cached data", "green")
                 regions = cached_data["regions"]
                 region_services = cached_data["region_services"]
+                service_names = cached_data.get("service_names", {})
+                enhanced_services = cached_data.get("enhanced_services", {})
                 metadata = cached_data.get("metadata", {})
             else:
                 progress.print_status("⏳ Cache miss - fetching fresh data", "yellow")
@@ -124,9 +129,18 @@ def main() -> None:
         if not cached_data:
             session = create_session(config)
 
-            # Fetch regions and services
+            # Fetch regions, services, and service names
             regions = get_all_regions_and_names(config, session, quiet)
             region_services = get_services_per_region(config, session, quiet)
+            service_names = get_all_services_with_names(config, session, quiet)
+            
+            # Conditionally fetch enhanced metadata
+            if config.enhanced_metadata:
+                enhanced_services = get_services_per_region_enhanced(config, session, quiet)
+            else:
+                if not quiet:
+                    print("⚡ Skipping enhanced metadata for faster execution")
+                enhanced_services = {}
 
             fetch_duration = time.time() - start_time
             metadata = {
@@ -138,7 +152,7 @@ def main() -> None:
 
             # Save to cache if enabled
             if config.cache_enabled:
-                if cache.save(regions, region_services, metadata):
+                if cache.save(regions, region_services, service_names, enhanced_services, metadata):
                     progress.print_status("💾 Data cached for future runs", "green")
 
         # Generate outputs
@@ -154,27 +168,31 @@ def main() -> None:
         # Generate requested formats
         for format_type in config.output_formats:
             if format_type == "csv":
-                create_regions_services_csv(config, regions, region_services, quiet)
+                create_regions_services_csv(config, regions, region_services, service_names, enhanced_services, quiet)
                 create_services_regions_matrix_csv(
-                    config, regions, region_services, quiet
+                    config, regions, region_services, service_names, quiet
                 )
                 output_success.append("CSV")
 
             elif format_type == "json":
                 if create_json_output(
-                    config, regions, region_services, metadata, quiet
+                    config, regions, region_services, service_names, enhanced_services, metadata, quiet
                 ):
                     output_success.append("JSON")
 
             elif format_type == "excel":
                 if create_excel_output(
-                    config, regions, region_services, metadata, quiet
+                    config, regions, region_services, service_names, enhanced_services, metadata, quiet
                 ):
                     output_success.append("Excel")
 
             elif format_type == "region-summary":
                 create_region_summary_csv(config, regions, region_services, quiet)
                 output_success.append("Region Summary")
+
+            elif format_type == "service-summary":
+                create_service_summary_csv(config, regions, region_services, service_names, quiet)
+                output_success.append("Service Summary")
 
         # Show completion summary
         total_time = time.time() - start_time
