@@ -34,11 +34,26 @@ class TestOutputFormats:
             matrix_filename="test_matrix.csv",
         )
 
-        # Sample test data
+        # Sample test data (updated to match current data structure)
         self.test_regions = {
-            "us-east-1": "US East (N. Virginia)",
-            "eu-west-1": "Europe (Ireland)",
-            "ap-southeast-1": "Asia Pacific (Singapore)",
+            "us-east-1": {
+                "name": "US East (N. Virginia)",
+                "launch_date": "2006-08-25",
+                "partition": "aws",
+                "az_count": 3,
+            },
+            "eu-west-1": {
+                "name": "Europe (Ireland)",
+                "launch_date": "2007-10-10",
+                "partition": "aws",
+                "az_count": 3,
+            },
+            "ap-southeast-1": {
+                "name": "Asia Pacific (Singapore)",
+                "launch_date": "2010-04-28",
+                "partition": "aws",
+                "az_count": 3,
+            },
         }
 
         self.test_region_services = {
@@ -73,8 +88,8 @@ class TestOutputFormats:
         # Should have 6 rows (3 + 2 + 1 services)
         assert len(rows) == 6
 
-        # Verify header
-        assert reader.fieldnames == ["Region Code", "Region Name", "Service Code"]
+        # Verify header (updated to match current CSV format)
+        assert reader.fieldnames == ["Region Code", "Region Name", "Service Code", "Service Name"]
 
         # Verify some specific entries
         us_east_rows = [row for row in rows if row["Region Code"] == "us-east-1"]
@@ -141,8 +156,8 @@ class TestOutputFormats:
         # Should have 3 rows (one per region)
         assert len(rows) == 3
 
-        # Verify header
-        assert reader.fieldnames == ["Region Code", "Region Name", "Service Count"]
+        # Verify header (updated to match current CSV format with AZ column)
+        assert reader.fieldnames == ["Region Code", "Region Name", "Availability Zones", "Service Count"]
 
         # Create lookup for easy testing
         region_summary = {row["Region Code"]: row for row in rows}
@@ -150,6 +165,7 @@ class TestOutputFormats:
         # Verify specific entries
         assert region_summary["us-east-1"]["Region Name"] == "US East (N. Virginia)"
         assert region_summary["us-east-1"]["Service Count"] == "3"
+        assert region_summary["us-east-1"]["Availability Zones"] == "3"
 
         assert region_summary["eu-west-1"]["Region Name"] == "Europe (Ireland)"
         assert region_summary["eu-west-1"]["Service Count"] == "2"
@@ -166,7 +182,9 @@ class TestOutputFormats:
             self.config,
             self.test_regions,
             self.test_region_services,
-            self.test_metadata,
+            service_names=None,
+            enhanced_services=None,
+            metadata=self.test_metadata,
             quiet=True,
         )
 
@@ -206,7 +224,9 @@ class TestOutputFormats:
         assert len(regions_data) == 3
         assert regions_data["us-east-1"]["name"] == "US East (N. Virginia)"
         assert regions_data["us-east-1"]["service_count"] == 3
-        assert set(regions_data["us-east-1"]["services"]) == {"ec2", "lambda", "s3"}
+        # Services are now a list of dictionaries with 'code' and 'name' keys
+        service_codes = {service["code"] for service in regions_data["us-east-1"]["services"]}
+        assert service_codes == {"ec2", "lambda", "s3"}
 
         # Verify services data with coverage
         services_data = data["services"]
@@ -229,7 +249,9 @@ class TestOutputFormats:
                 self.config,
                 self.test_regions,
                 self.test_region_services,
-                self.test_metadata,
+                service_names=None,
+                enhanced_services=None,
+                metadata=self.test_metadata,
                 quiet=True,
             )
 
@@ -249,9 +271,10 @@ class TestOutputFormats:
                         "Regional Services",
                         "Service Matrix",
                         "Region Summary",
+                        "Service Summary",
                         "Statistics",
                     ]
-                    assert len(sheet_names) == 4
+                    assert len(sheet_names) == 5
                     for expected_sheet in expected_sheets:
                         assert expected_sheet in sheet_names
 
@@ -259,10 +282,13 @@ class TestOutputFormats:
                     ws_summary = wb["Region Summary"]
                     assert ws_summary["A1"].value == "Region Code"
                     assert ws_summary["B1"].value == "Region Name"
-                    assert ws_summary["C1"].value == "Service Count"
+                    assert ws_summary["C1"].value == "Availability Zones"
+                    assert ws_summary["D1"].value == "Service Count"
 
                     # Check data rows (should have 3 regions)
                     assert ws_summary.max_row == 4  # 1 header + 3 data rows
+                    # Note: Excel might have extra columns, so just check we have at least 4
+                    assert ws_summary.max_column >= 4  # At least: Region Code, Name, AZs, Service Count
                     wb.close()
                 except ImportError:
                     # openpyxl not available for testing, but file was created
@@ -344,8 +370,16 @@ class TestOutputFormats:
 
     def test_large_data_handling(self):
         """Test output generation with large datasets."""
-        # Create large test dataset
-        large_regions = {f"region-{i:03d}": f"Region {i}" for i in range(100)}
+        # Create large test dataset (updated to match current data structure)
+        large_regions = {
+            f"region-{i:03d}": {
+                "name": f"Region {i}",
+                "launch_date": "2010-01-01",
+                "partition": "aws",
+                "az_count": i % 5 + 1,
+            }
+            for i in range(100)
+        }
         large_services = {
             f"region-{i:03d}": [f"service-{j}" for j in range(i % 10)]
             for i in range(100)
@@ -365,9 +399,24 @@ class TestOutputFormats:
     def test_special_characters_handling(self):
         """Test handling of special characters in region/service names."""
         special_regions = {
-            "us-east-1": "US East (N. Virginia) - Special & Characters",
-            "eu-west-1": "Europe (Ireland) - Åccénted Chäracters",
-            "ap-se-1": "Asia Pacific - 中文/日本語",
+            "us-east-1": {
+                "name": "US East (N. Virginia) - Special & Characters",
+                "launch_date": "2006-08-25",
+                "partition": "aws",
+                "az_count": 3,
+            },
+            "eu-west-1": {
+                "name": "Europe (Ireland) - Åccénted Chäracters",
+                "launch_date": "2007-10-10",
+                "partition": "aws",
+                "az_count": 3,
+            },
+            "ap-se-1": {
+                "name": "Asia Pacific - 中文/日本語",
+                "launch_date": "2010-04-28",
+                "partition": "aws",
+                "az_count": 2,
+            },
         }
 
         special_services = {
@@ -388,7 +437,9 @@ class TestOutputFormats:
             data = json.load(f)
 
         assert "us-east-1" in data["regions"]
-        assert "service-with-dashes" in data["regions"]["us-east-1"]["services"]
+        # Services are now a list of dictionaries with 'code' and 'name' keys
+        service_codes = {service["code"] for service in data["regions"]["us-east-1"]["services"]}
+        assert "service-with-dashes" in service_codes
 
 
 if __name__ == "__main__":

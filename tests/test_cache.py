@@ -26,11 +26,26 @@ class TestAWSDataCache:
         self.cache_file = Path(self.temp_dir) / "test_cache.json"
         self.cache = AWSDataCache(str(self.cache_file), cache_hours=24)
 
-        # Sample test data
+        # Sample test data (updated to match current data structure)
         self.test_regions = {
-            "us-east-1": "US East (N. Virginia)",
-            "eu-west-1": "Europe (Ireland)",
-            "ap-southeast-1": "Asia Pacific (Singapore)",
+            "us-east-1": {
+                "name": "US East (N. Virginia)",
+                "launch_date": "2006-08-25",
+                "partition": "aws",
+                "az_count": 3,
+            },
+            "eu-west-1": {
+                "name": "Europe (Ireland)",
+                "launch_date": "2007-10-10",
+                "partition": "aws",
+                "az_count": 3,
+            },
+            "ap-southeast-1": {
+                "name": "Asia Pacific (Singapore)",
+                "launch_date": "2010-04-28",
+                "partition": "aws",
+                "az_count": 3,
+            },
         }
 
         self.test_region_services = {
@@ -49,9 +64,9 @@ class TestAWSDataCache:
 
     def test_cache_file_creation(self):
         """Test cache file is created with correct structure."""
-        # Save data to cache
+        # Save data to cache (using new signature with metadata parameter)
         result = self.cache.save(
-            self.test_regions, self.test_region_services, self.test_metadata
+            self.test_regions, self.test_region_services, metadata=self.test_metadata
         )
 
         assert result is True
@@ -86,7 +101,7 @@ class TestAWSDataCache:
         """Test loading data from valid cache."""
         # Save and load data
         self.cache.save(
-            self.test_regions, self.test_region_services, self.test_metadata
+            self.test_regions, self.test_region_services, metadata=self.test_metadata
         )
         loaded_data = self.cache.load()
 
