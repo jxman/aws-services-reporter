@@ -297,7 +297,7 @@ def create_excel_output(
         # Add statistics data
         stats_data = [
             ["Generated At", datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
-            ["Generator", "AWS Services Reporter v1.4.0"],
+            ["Generator", "AWS Services Reporter v1.4.1"],
             [""],
             ["Summary Statistics", ""],
             ["Total Regions", len(regions)],

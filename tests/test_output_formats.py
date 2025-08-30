@@ -229,7 +229,7 @@ class TestOutputFormats:
 
         # Verify generator info
         assert data["generator"]["name"] == "AWS Services Reporter"
-        assert data["generator"]["version"] == "1.4.0"
+        assert data["generator"]["version"] == "1.4.1"
 
         # Verify summary statistics
         summary = data["summary"]

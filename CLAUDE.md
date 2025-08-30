@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This high-performance Python project generates comprehensive reports of AWS services availability across all regions using AWS Systems Manager (SSM) Parameter Store. Features intelligent caching (99% time savings), modular architecture, multiple output formats, and professional progress tracking.
 
-**Current Version: v1.4.0 (RSS Integration Complete - Enhanced Launch Dates)**
+**Current Version: v1.4.1 (Security Hardening Complete - Production Ready)**
 
 ## 🏗️ Project Architecture
 
-### Modular Structure (v1.4.0+)
+### Modular Structure (v1.4.1+)
 ```
 aws-services/
 ├── aws_services_reporter/          # Main package (modular architecture)
@@ -95,7 +95,7 @@ python3 -m venv .venv
 source .venv/bin/activate  # Linux/Mac
 
 # Install dependencies
-pip install -r requirements.txt      # Runtime dependencies
+pip install -r requirements.txt      # Runtime dependencies (includes security libs)
 pip install -r requirements-dev.txt  # Development dependencies (testing, linting)
 ```
 
@@ -122,6 +122,13 @@ black . && isort . && flake8 .       # Code formatting & linting
 - **Config**: Default output to `reports/` (configurable)
 
 ## Development Guidelines
+
+### Security Requirements (v1.4.1)
+- **Secure Dependencies**: Always use `defusedxml` for XML parsing and `requests` for HTTP calls
+- **Input Validation**: Validate URLs and sanitize user inputs
+- **Bandit Scanning**: Zero high/medium severity issues required
+- **Security Annotations**: Use `# nosec` only for documented false positives with explanations
+- **Fallback Warnings**: Display security warnings when safe dependencies unavailable
 
 ### Code Style & Quality
 - **Type hints**: Required for all functions and methods

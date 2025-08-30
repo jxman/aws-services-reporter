@@ -135,7 +135,7 @@ class AWSDataCache:
                 "enhanced_services": enhanced_services or {},
                 "metadata": metadata or {},
                 "cache_info": {
-                    "version": "1.4.0",
+                    "version": "1.4.1",
                     "total_regions": len(regions),
                     "total_services": len(
                         set().union(*region_services.values())
@@ -197,7 +197,7 @@ class AWSDataCache:
                 'valid': True,
                 'age_hours': 2.5,
                 'file_size': 45231,
-                'cache_info': {'version': '1.4.0', 'total_regions': 10},
+                'cache_info': {'version': '1.4.1', 'total_regions': 10},
                 'timestamp': '2024-08-26 10:30:00'
             }
         """

@@ -10,7 +10,7 @@ Modules:
     utils: Utility functions and helpers
 
 Author: AWS Services Reporter Team
-Version: 1.4.0
+Version: 1.4.1
 License: MIT
 """
 
@@ -18,7 +18,7 @@ from .core.cache import AWSDataCache
 from .core.config import Config
 from .core.progress import ProgressTracker
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 __author__ = "AWS Services Reporter Team"
 __license__ = "MIT"
 

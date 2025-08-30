@@ -114,7 +114,7 @@ Examples:
         "--cache-help", action="store_true", help="Show detailed caching help and exit"
     )
     parser.add_argument(
-        "--version", action="version", version="AWS Services Reporter v1.4.0"
+        "--version", action="version", version="AWS Services Reporter v1.4.1"
     )
 
     # Logging and output
@@ -181,7 +181,7 @@ def show_examples() -> None:
   python main.py --quiet                   # Minimal output, results only
   python main.py --log-level INFO --max-workers 1  # Slow but detailed execution
 
-📡 RSS INTEGRATION (NEW in v1.4.0):
+📡 RSS INTEGRATION (NEW in v1.4.1):
   All outputs now include enhanced region launch dates from official AWS RSS feed
   🌍 Visual indicators: 📡 RSS data, 🔧 SSM data, ❓ Unknown
   Launch dates, announcement URLs, and data sources included in all reports

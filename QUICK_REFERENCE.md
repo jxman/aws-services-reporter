@@ -1,6 +1,6 @@
 # AWS Services Reporter - Quick Reference
 
-> **Version 1.4.0** | **CI/CD**: ✅ Passing | **Security**: ✅ Excellent | **Tests**: 50+ passing | **RSS**: 📡 Integrated
+> **Version 1.4.1** | **CI/CD**: ✅ Passing | **Security**: ✅ Hardened | **Tests**: 52+ passing | **RSS**: 📡 Integrated
 
 ## 🚀 **Quick Start**
 
@@ -64,7 +64,7 @@ python -m pytest tests/ -v --cov=aws_services_reporter --cov-report=term-missing
 # Code quality checks (same as CI/CD)
 black --check . && isort --check-only . && flake8 .
 
-# Security scan (same as CI/CD)
+# Security scan (same as CI/CD) - should show no issues
 bandit -r . --severity-level medium
 
 # Type checking (same as CI/CD)
@@ -106,6 +106,19 @@ python -m pytest tests/ --lf                # Re-run last failed tests
 gh run list --limit 5                       # Recent workflow runs
 gh run view --web                            # Open latest run in browser
 ```
+
+## 🔐 **Security & Requirements** (v1.4.1)
+
+### Security Dependencies
+- `defusedxml>=0.7.1` - Secure XML parsing (RSS feeds)
+- `requests>=2.28.0` - Secure HTTP handling
+- `bandit` - Security scanning (dev dependency)
+
+### Security Features
+- ✅ **Zero high/medium security issues** (bandit validated)
+- 🛡️ **URL scheme validation** (HTTPS/HTTP only)
+- 🔒 **Secure XML parsing** prevents XXE attacks
+- 📡 **Safe RSS processing** with input validation
 
 ## 📋 **All Available Options**
 

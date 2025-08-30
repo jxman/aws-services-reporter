@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.4.0-orange.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.4.1-orange.svg)](CHANGELOG.md)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Passing-brightgreen.svg)](https://github.com/jxman/aws-services-reporter/actions)
 [![Security](https://img.shields.io/badge/Security-Excellent-brightgreen.svg)](#security)
 
@@ -308,11 +308,19 @@ python main.py --quiet               # Minimal output
 
 ## 🔒 Security
 
-### Security Assessment
+### Security Assessment (v1.4.1)
 - ✅ **Zero High/Medium Severity Issues**: Comprehensive security scanning with Bandit
 - 🛡️ **Automated Security Scans**: Every commit is security validated
 - 🔍 **Dependency Scanning**: Safety checks for known vulnerabilities
 - 📊 **Security Reports**: Detailed reports available in CI/CD artifacts
+- 🔐 **Secure Dependencies**: defusedxml for XML parsing, requests for HTTP calls
+- 🌐 **URL Validation**: HTTPS/HTTP scheme validation prevents unsafe protocols
+
+### Security Improvements (v1.4.1)
+- **RSS Client Security**: Replaced vulnerable XML parsing with defusedxml
+- **HTTP Security**: Replaced urllib with requests library for safer HTTP handling
+- **Input Validation**: Added URL scheme validation (HTTPS/HTTP only)
+- **Graceful Fallbacks**: Security warnings when safe dependencies unavailable
 
 ### Security Scan Results
 - **High Severity**: 0 issues ✅
@@ -344,6 +352,8 @@ All CI/CD jobs passing with comprehensive validation:
 - **boto3** (AWS SDK)
 - **rich** (Enhanced UI)
 - **tabulate** (Table formatting)
+- **defusedxml** (Secure XML parsing)
+- **requests** (Secure HTTP handling)
 - **Optional**: pandas + openpyxl (Excel output)
 
 ### Development Setup

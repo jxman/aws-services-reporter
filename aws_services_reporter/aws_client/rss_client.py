@@ -64,7 +64,7 @@ def fetch_rss_data(rss_url: str, timeout: int = 30) -> Optional[str]:
             response = requests.get(
                 rss_url,
                 timeout=timeout,
-                headers={"User-Agent": "AWS-Services-Reporter/1.4.0"},
+                headers={"User-Agent": "AWS-Services-Reporter/1.4.1"},
             )
             response.raise_for_status()
             data = response.text
