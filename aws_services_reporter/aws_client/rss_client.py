@@ -7,11 +7,31 @@ context and potentially more accurate launch information.
 
 import logging
 import re
-import xml.etree.ElementTree as ET
 from datetime import datetime
 from typing import Dict, Optional
-from urllib.error import URLError
-from urllib.request import urlopen
+
+try:
+    import defusedxml.ElementTree as ET
+except ImportError:
+    import warnings
+    import xml.etree.ElementTree as ET  # nosec B405
+
+    warnings.warn(
+        "defusedxml not available, using xml.etree.ElementTree. "
+        "Install defusedxml for improved security: pip install defusedxml"
+    )
+
+try:
+    import requests
+except ImportError:
+    import urllib.error
+    import urllib.request
+    import warnings
+
+    warnings.warn(
+        "requests not available, using urllib. "
+        "Install requests for improved security: pip install requests"
+    )
 
 from ..core.config import Config
 
@@ -27,22 +47,39 @@ def fetch_rss_data(rss_url: str, timeout: int = 30) -> Optional[str]:
         Raw RSS XML content as string, or None if fetch fails
 
     Raises:
-        URLError: If network request fails
-        Exception: For other errors during fetch
+        Exception: If network request fails or other errors occur
     """
     logger = logging.getLogger(__name__)
 
+    # Validate URL scheme for security
+    if not rss_url.startswith(("https://", "http://")):
+        logger.error(f"Invalid URL scheme, only HTTP/HTTPS allowed: {rss_url}")
+        return None
+
     try:
         logger.debug(f"Fetching RSS data from {rss_url}")
-        with urlopen(rss_url, timeout=timeout) as response:
-            data = response.read().decode("utf-8")
-            logger.info(f"Successfully fetched RSS data ({len(data)} bytes)")
-            return data
-    except URLError as e:
-        logger.error(f"Failed to fetch RSS feed: {e}")
-        return None
+
+        # Use requests if available for better security
+        if "requests" in globals():
+            response = requests.get(
+                rss_url,
+                timeout=timeout,
+                headers={"User-Agent": "AWS-Services-Reporter/1.4.0"},
+            )
+            response.raise_for_status()
+            data = response.text
+        else:
+            # Fallback to urllib with validation (URL scheme validated above)
+            with urllib.request.urlopen(
+                rss_url, timeout=timeout
+            ) as response:  # nosec B310
+                data = response.read().decode("utf-8")
+
+        logger.info(f"Successfully fetched RSS data ({len(data)} bytes)")
+        return data
+
     except Exception as e:
-        logger.error(f"Unexpected error fetching RSS feed: {e}")
+        logger.error(f"Failed to fetch RSS feed: {e}")
         return None
 
 
@@ -97,7 +134,8 @@ def parse_rss_launch_dates(rss_data: str) -> Dict[str, Dict[str, str]]:
     logger = logging.getLogger(__name__)
 
     try:
-        root = ET.fromstring(rss_data)
+        # defusedxml preferred, fallback has warning above for user awareness
+        root = ET.fromstring(rss_data)  # nosec B314
         regions_data = {}
 
         # Find all RSS items
