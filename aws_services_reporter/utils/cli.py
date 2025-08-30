@@ -114,7 +114,7 @@ Examples:
         "--cache-help", action="store_true", help="Show detailed caching help and exit"
     )
     parser.add_argument(
-        "--version", action="version", version="AWS Services Reporter v1.3.0"
+        "--version", action="version", version="AWS Services Reporter v1.4.0"
     )
 
     # Logging and output
@@ -158,7 +158,7 @@ def show_examples() -> None:
   python main.py --format csv              # Generate CSV files only
   python main.py --format json             # Generate JSON file only
   python main.py --format excel            # Generate Excel file only (requires pandas/openpyxl)
-  python main.py --format region-summary   # Generate region summary CSV only
+  python main.py --format region-summary   # Generate region summary CSV with launch dates
   python main.py --format csv json excel   # Generate all formats
   python main.py --format csv region-summary  # Generate CSV and region summary
 
@@ -181,6 +181,11 @@ def show_examples() -> None:
   python main.py --quiet                   # Minimal output, results only
   python main.py --log-level INFO --max-workers 1  # Slow but detailed execution
 
+📡 RSS INTEGRATION (NEW in v1.4.0):
+  All outputs now include enhanced region launch dates from official AWS RSS feed
+  🌍 Visual indicators: 📡 RSS data, 🔧 SSM data, ❓ Unknown
+  Launch dates, announcement URLs, and data sources included in all reports
+
 💡 PRODUCTION EXAMPLES:
   python main.py --format json --quiet --cache-hours 48  # Automated JSON generation
   python main.py --profile prod --output-dir /opt/reports --format csv json  # Production setup
@@ -188,8 +193,8 @@ def show_examples() -> None:
 🚀 QUICK START:
   1. python main.py --examples             # See this help
   2. python main.py --cache-help           # Learn about caching
-  3. python main.py                        # Run with defaults
-  4. python main.py --format json          # Generate JSON output
+  3. python main.py                        # Run with defaults (includes RSS launch dates)
+  4. python main.py --format region-summary # See enhanced region data with launch dates
 
 For more help: python main.py --help
 For caching help: python main.py --cache-help

@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This high-performance Python project generates comprehensive reports of AWS services availability across all regions using AWS Systems Manager (SSM) Parameter Store. Features intelligent caching (99% time savings), modular architecture, multiple output formats, and professional progress tracking.
 
-**Current Version: v1.3.0 (Phase 3A Complete - Modular Architecture)**
+**Current Version: v1.4.0 (RSS Integration Complete - Enhanced Launch Dates)**
 
 ## 🏗️ Project Architecture
 
-### Modular Structure (v1.3.0+)
+### Modular Structure (v1.4.0+)
 ```
 aws-services/
 ├── aws_services_reporter/          # Main package (modular architecture)
@@ -20,7 +20,8 @@ aws-services/
 │   │   └── progress.py            # Rich UI & progress tracking
 │   ├── aws_client/               # AWS API interactions
 │   │   ├── session.py            # Session & credential management
-│   │   └── ssm_client.py         # SSM Parameter Store client
+│   │   ├── ssm_client.py         # SSM Parameter Store client
+│   │   └── rss_client.py         # RSS feed parser for launch dates
 │   ├── output/                   # Report generation
 │   │   ├── csv_output.py         # CSV reports
 │   │   ├── json_output.py        # JSON with statistics
@@ -36,7 +37,8 @@ aws-services/
 │   ├── test_cache.py             # Cache system tests
 │   ├── test_aws_integration.py   # AWS API mocking tests
 │   ├── test_configuration.py     # Config & CLI tests
-│   └── test_output_formats.py    # Output generation tests
+│   ├── test_output_formats.py    # Output generation tests
+│   └── test_rss_client.py        # RSS feed integration tests
 ├── .github/workflows/            # CI/CD pipeline
 ├── main.py                       # Application entry point (193 lines)
 ├── .gitignore                    # Comprehensive Python + project patterns
@@ -59,6 +61,13 @@ aws-services/
 - Automatic cache validation with configurable TTL (default: 24 hours)
 - Smart cache management with statistics and manual controls
 - Cache location: `reports/cache/aws_data_cache.json` (~150-200KB)
+
+### 📡 **RSS Feed Integration (New in v1.4.0)**
+- **Enhanced launch dates** from official AWS documentation RSS feed
+- **87% coverage**: 33 of 38 regions with precise launch dates
+- **Data source prioritization**: RSS → SSM → Unknown with visual indicators
+- **Rich metadata**: Announcement URLs, formatted dates, and data source tracking
+- **Intelligent merging**: Combines RSS and SSM data for comprehensive coverage
 
 ### 📊 **Multiple Output Formats**
 - **CSV**: Traditional spreadsheet format (in `reports/csv/`)
@@ -195,6 +204,7 @@ python -m pytest tests/ --cov=aws_services_reporter --cov-report=html
 - **v1.1**: Added concurrency (~800 lines)  
 - **v1.2**: Intelligent caching (~1,200 lines)
 - **v1.3**: Modular architecture (distributed across focused modules)
+- **v1.4**: RSS feed integration for enhanced launch dates with comprehensive testing
 
 ### Design Decisions
 - **SSM Parameter Store**: Chosen for comprehensive service data
@@ -220,10 +230,11 @@ python main.py --no-cache --quiet    # Force fresh data
 
 ## Next Development Priorities
 
-### Phase 3B (v1.4.0) - In Progress
+### Phase 4A (v1.5.0) - In Progress
 - **Plugin system**: Extensible output formats
 - **Advanced CLI**: Service filtering, custom regions
 - **API documentation**: Sphinx-generated docs
+- **Enhanced RSS features**: Custom RSS URLs, historical analysis
 
 ### Performance Targets
 - **Maintain <5s cached runs**
@@ -233,6 +244,6 @@ python main.py --no-cache --quiet    # Force fresh data
 
 ---
 
-**Last Updated**: August 26, 2024  
-**Architecture**: Modular (v1.3.0)  
-**Next Milestone**: Plugin System (v1.4.0)
+**Last Updated**: August 30, 2024  
+**Architecture**: Modular with RSS Integration (v1.4.0)  
+**Next Milestone**: Plugin System (v1.5.0)

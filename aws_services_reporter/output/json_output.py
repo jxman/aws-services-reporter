@@ -123,7 +123,7 @@ def create_json_output(
         "generated_at": datetime.now().isoformat(),
         "generator": {
             "name": "AWS Services Reporter",
-            "version": "1.3.0",
+            "version": "1.4.0",
             "url": "https://github.com/aws-services-reporter",
         },
         "summary": {

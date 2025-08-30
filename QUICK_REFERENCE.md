@@ -1,6 +1,6 @@
 # AWS Services Reporter - Quick Reference
 
-> **Version 1.3.0** | **CI/CD**: ✅ Passing | **Security**: ✅ Excellent | **Tests**: 40 passing
+> **Version 1.4.0** | **CI/CD**: ✅ Passing | **Security**: ✅ Excellent | **Tests**: 50+ passing | **RSS**: 📡 Integrated
 
 ## 🚀 **Quick Start**
 

@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.3.0-orange.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.4.0-orange.svg)](CHANGELOG.md)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Passing-brightgreen.svg)](https://github.com/jxman/aws-services-reporter/actions)
 [![Security](https://img.shields.io/badge/Security-Excellent-brightgreen.svg)](#security)
 
@@ -17,11 +17,13 @@ AWS Services Reporter is a powerful Python tool that analyzes AWS service availa
 - 🚀 **Intelligent Caching**: 99% performance improvement (90s → 5s)
 - 🌍 **Complete Coverage**: All AWS regions and 400+ services  
 - 📊 **Multiple Formats**: CSV, JSON, Excel (5 sheets), Region Summary
+- 📡 **RSS Integration**: Enhanced region launch dates from official AWS RSS feed
 - ⚡ **Concurrent Processing**: 10 concurrent API calls by default
 - 🎯 **Rich Progress Tracking**: Beautiful progress bars and status displays
 - 🏗️ **Modular Architecture**: Clean, maintainable, and extensible code
 - 🔧 **Comprehensive CLI**: 20+ command-line options
 - 📈 **Detailed Statistics**: Service coverage, regional analysis, and metadata
+- 🕰️ **Historical Data**: Region launch dates with announcement URLs and data sources
 - ✅ **Production Ready**: Comprehensive CI/CD pipeline with automated testing
 - 🛡️ **Security Validated**: Zero high/medium severity security issues
 - 🔧 **Pre-commit Hooks**: Automatic code formatting and quality checks
@@ -42,8 +44,8 @@ AWS Services Reporter is a powerful Python tool that analyzes AWS service availa
          │                       │                       │
          ▼                       ▼                       ▼
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│  Pre-commit     │    │   CI/CD Pipeline│    │  Security Scans │
-│ (code quality)  │    │ (testing/build) │    │ (bandit/safety) │
+│  RSS Feed Client│    │   CI/CD Pipeline│    │  Security Scans │
+│ (launch dates)  │    │ (testing/build) │    │ (bandit/safety) │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -58,7 +60,8 @@ aws-services/
 │   │   └── progress.py            # Rich progress tracking
 │   ├── aws_client/               # AWS API interactions
 │   │   ├── session.py            # Session management
-│   │   └── ssm_client.py         # SSM Parameter Store client
+│   │   ├── ssm_client.py         # SSM Parameter Store client
+│   │   └── rss_client.py         # RSS feed parser for launch dates
 │   ├── output/                   # Report generation
 │   │   ├── csv_output.py         # CSV report generation
 │   │   ├── json_output.py        # JSON with statistics
@@ -150,12 +153,40 @@ python main.py --no-cache
 python main.py --cache-hours 48  # 48-hour cache
 ```
 
+## 🔗 RSS Feed Integration
+
+### Enhanced Launch Date Data
+**New in v1.4.0**: The reporter now integrates AWS region launch dates from the official AWS documentation RSS feed to provide comprehensive historical data.
+
+#### Data Sources Integration
+- **Primary**: Official AWS RSS feed (87% coverage - 33 of 38 regions)
+- **Fallback**: AWS SSM Parameter Store data  
+- **Priority**: RSS data takes precedence when available for accuracy
+
+#### RSS Feed Features
+- **Precise Launch Dates**: ISO format (YYYY-MM-DD) from official announcements
+- **Announcement URLs**: Direct links to AWS blog posts and launch announcements
+- **Formatted Dates**: Human-readable dates from RSS (e.g., "Fri, 25 Aug 2006 12:00:00 GMT")
+- **Data Source Tracking**: Indicates whether data comes from RSS, SSM, or is Unknown
+
+#### Terminal Output Indicators
+- 📡 **RSS**: Data from official RSS feed (most regions)
+- 🔧 **SSM**: Data from AWS SSM Parameter Store (fallback)
+- ❓ **Unknown**: No launch date available (e.g., GovCloud, China regions)
+
+Example terminal output:
+```
+🌍 1/38: us-east-1 → US East (N. Virginia) (AZs: 6, Launch: 2006-08-25 📡)
+🌍 2/38: eu-west-1 → Europe (Ireland) (AZs: 3, Launch: 2008-12-10 📡)
+🌍 3/38: us-gov-west-1 → AWS GovCloud (US-West) (AZs: 3, Launch: Unknown ❓)
+```
+
 ## 📋 Output Formats
 
 ### 1. CSV Reports (`reports/csv/`)
 - **regions_services.csv**: Each region with its available services
 - **services_regions_matrix.csv**: Service × Region availability matrix
-- **region_summary.csv**: Summary of regions with service counts and AZ info
+- **region_summary.csv**: Summary of regions with launch dates, sources, announcement URLs, and service counts
 - **service_summary.csv**: Summary of services with regional coverage statistics
 
 ### 2. JSON Report (`reports/json/`)
@@ -166,7 +197,7 @@ python main.py --cache-hours 48  # 48-hour cache
 - **regions_services.xlsx**: Multi-sheet workbook with 5 formatted sheets:
   - **Regional Services**: Detailed region-service mappings
   - **Service Matrix**: Service × Region availability grid
-  - **Region Summary**: Region statistics with AZ counts
+  - **Region Summary**: Region statistics with launch dates, sources, announcement URLs, and AZ counts
   - **Service Summary**: Service coverage across regions
   - **Statistics**: Overall metrics and insights
 
@@ -257,6 +288,10 @@ python main.py --quiet               # Minimal output
   "regions": {
     "us-east-1": {
       "name": "US East (N. Virginia)",
+      "launch_date": "2006-08-25",
+      "launch_date_source": "RSS",
+      "formatted_date": "Fri, 25 Aug 2006 12:00:00 GMT",
+      "announcement_url": "https://aws.amazon.com/blogs/aws/...",
       "service_count": 245,
       "services": ["amplify", "apigateway", "ec2", ...]
     }

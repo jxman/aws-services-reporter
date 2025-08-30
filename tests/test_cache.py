@@ -171,7 +171,7 @@ class TestAWSDataCache:
             cache_data = json.load(f)
 
         cache_info = cache_data["cache_info"]
-        assert cache_info["version"] == "1.3.0"
+        assert cache_info["version"] == "1.4.0"
         assert cache_info["total_regions"] == len(self.test_regions)
         assert cache_info["total_services"] == 3  # ec2, s3, lambda
         assert "cache_file_size" in cache_info
