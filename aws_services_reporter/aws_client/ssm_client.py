@@ -14,6 +14,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 from ..core.config import Config
+from .rss_client import get_rss_region_launch_dates, merge_launch_date_sources
 
 
 def get_all_parameters_by_path(
@@ -206,6 +207,9 @@ def get_all_regions_and_names(
 ) -> Dict[str, Dict[str, Any]]:
     """Fetch all AWS regions and their comprehensive details using concurrent processing.
 
+    Integrates data from both AWS SSM Parameter Store and official RSS feed for
+    enhanced launch date accuracy and additional metadata.
+
     Args:
         config: Configuration object with AWS settings
         session: Boto3 session for API calls
@@ -217,6 +221,9 @@ def get_all_regions_and_names(
             'us-east-1': {
                 'name': 'US East (N. Virginia)',
                 'launch_date': '2006-08-25',
+                'launch_date_source': 'RSS',
+                'formatted_date': 'Fri, 25 Aug 2006',
+                'announcement_url': 'https://...',
                 'partition': 'aws',
                 'az_count': 6
             }
@@ -230,6 +237,13 @@ def get_all_regions_and_names(
         print("🔍 Fetching AWS regions...")
 
     ssm = session.client("ssm", region_name=config.aws_region)
+
+    # Fetch RSS launch date data first
+    if not quiet:
+        print("  ⏳ Fetching launch dates from RSS feed...")
+    rss_launch_data = get_rss_region_launch_dates(config)
+    if not quiet:
+        print(f"  ✓ Retrieved launch dates for {len(rss_launch_data)} regions from RSS")
 
     # Get all region codes
     if not quiet:
@@ -265,15 +279,30 @@ def get_all_regions_and_names(
             completed_count += 1
             details = future.result()
             code = details["code"]
+
+            # Merge launch date information from RSS and SSM sources
+            rss_data = rss_launch_data.get(code)
+            merged_launch_data = merge_launch_date_sources(
+                details["launch_date"], rss_data
+            )
+
             regions[code] = {
                 "name": details["name"],
-                "launch_date": details["launch_date"],
+                "launch_date": merged_launch_data["launch_date"],
+                "launch_date_source": merged_launch_data["source"],
+                "formatted_date": merged_launch_data["formatted_date"],
+                "announcement_url": merged_launch_data["announcement_url"],
                 "partition": details["partition"],
                 "az_count": details["az_count"],
             }
             if not quiet:
+                source_indicator = (
+                    "📡"
+                    if merged_launch_data["source"] == "RSS"
+                    else "🔧" if merged_launch_data["source"] == "SSM" else "❓"
+                )
                 print(
-                    f"    🌍 {completed_count}/{len(region_params)}: {code} → {details['name']} (AZs: {details['az_count']})"
+                    f"    🌍 {completed_count}/{len(region_params)}: {code} → {details['name']} (AZs: {details['az_count']}, Launch: {merged_launch_data['launch_date']} {source_indicator})"
                 )
 
     logger.info(f"Successfully fetched {len(regions)} region details")

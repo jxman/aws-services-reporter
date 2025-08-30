@@ -155,9 +155,9 @@ def create_region_summary_csv(
         quiet: Suppress progress output if True
 
     Creates:
-        CSV file with columns: Region Code, Region Name, Launch Year, Status,
-        Availability Zones, Service Count
-        Each region gets one row with comprehensive information
+        CSV file with columns: Region Code, Region Name, Launch Date, Launch Date Source,
+        Announcement URL, Availability Zones, Service Count
+        Each region gets one row with comprehensive information including launch dates
     """
     output_path = Path(config.output_dir) / "csv" / "region_summary.csv"
     logger = logging.getLogger(__name__)
@@ -171,17 +171,38 @@ def create_region_summary_csv(
     with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(
-            ["Region Code", "Region Name", "Availability Zones", "Service Count"]
+            [
+                "Region Code",
+                "Region Name",
+                "Launch Date",
+                "Launch Date Source",
+                "Announcement URL",
+                "Availability Zones",
+                "Service Count",
+            ]
         )
 
         # Write data sorted by region code
         for region_code in sorted(regions.keys()):
             region_details = regions[region_code]
             region_name = region_details["name"]
+            launch_date = region_details.get("launch_date", "Unknown")
+            launch_date_source = region_details.get("launch_date_source", "Unknown")
+            announcement_url = region_details.get("announcement_url", "")
             service_count = len(region_services.get(region_code, []))
             az_count = region_details.get("az_count", 0)
 
-            writer.writerow([region_code, region_name, az_count, service_count])
+            writer.writerow(
+                [
+                    region_code,
+                    region_name,
+                    launch_date,
+                    launch_date_source,
+                    announcement_url,
+                    az_count,
+                    service_count,
+                ]
+            )
 
     if not quiet:
         total_regions = len(regions)

@@ -149,20 +149,36 @@ def create_excel_output(
         # Sheet 3: Region Summary
         ws_summary = wb.create_sheet("Region Summary")
 
-        # Create region summary data with enhanced details
+        # Create region summary data with enhanced details including launch dates
         summary_data = []
         for region_code in sorted(regions.keys()):
             region_details = regions[region_code]
             region_name = region_details["name"]
+            launch_date = region_details.get("launch_date", "Unknown")
+            launch_date_source = region_details.get("launch_date_source", "Unknown")
+            announcement_url = region_details.get("announcement_url", "")
             service_count = len(region_services.get(region_code, []))
             az_count = region_details.get("az_count", 0)
 
-            summary_data.append([region_code, region_name, az_count, service_count])
+            summary_data.append(
+                [
+                    region_code,
+                    region_name,
+                    launch_date,
+                    launch_date_source,
+                    announcement_url,
+                    az_count,
+                    service_count,
+                ]
+            )
 
         # Add headers and data
         summary_headers = [
             "Region Code",
             "Region Name",
+            "Launch Date",
+            "Launch Date Source",
+            "Announcement URL",
             "Availability Zones",
             "Service Count",
         ]

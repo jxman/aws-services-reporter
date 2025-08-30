@@ -137,11 +137,17 @@ def create_json_output(
         "regions": {
             region_code: {
                 "name": region_details["name"],
+                "launch_date": region_details.get("launch_date", "Unknown"),
                 "launch_year": (
                     region_details.get("launch_date", "Unknown").split("-")[0]
                     if region_details.get("launch_date", "Unknown") != "Unknown"
                     else "Unknown"
                 ),
+                "launch_date_source": region_details.get(
+                    "launch_date_source", "Unknown"
+                ),
+                "formatted_date": region_details.get("formatted_date", ""),
+                "announcement_url": region_details.get("announcement_url", ""),
                 "status": _get_region_status(
                     region_details.get("partition", "Unknown")
                 ),
