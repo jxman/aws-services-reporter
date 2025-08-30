@@ -34,23 +34,32 @@ class TestOutputFormats:
             matrix_filename="test_matrix.csv",
         )
 
-        # Sample test data (updated to match current data structure)
+        # Sample test data (updated to match current data structure with RSS integration)
         self.test_regions = {
             "us-east-1": {
                 "name": "US East (N. Virginia)",
                 "launch_date": "2006-08-25",
+                "launch_date_source": "RSS",
+                "formatted_date": "Fri, 25 Aug 2006 12:00:00 GMT",
+                "announcement_url": "https://aws.amazon.com/blogs/aws/us-east-1",
                 "partition": "aws",
                 "az_count": 3,
             },
             "eu-west-1": {
                 "name": "Europe (Ireland)",
                 "launch_date": "2007-10-10",
+                "launch_date_source": "SSM",
+                "formatted_date": "",
+                "announcement_url": "",
                 "partition": "aws",
                 "az_count": 3,
             },
             "ap-southeast-1": {
                 "name": "Asia Pacific (Singapore)",
                 "launch_date": "2010-04-28",
+                "launch_date_source": "RSS",
+                "formatted_date": "Wed, 28 Apr 2010 12:00:00 GMT",
+                "announcement_url": "https://aws.amazon.com/blogs/aws/ap-southeast-1",
                 "partition": "aws",
                 "az_count": 3,
             },
@@ -161,10 +170,13 @@ class TestOutputFormats:
         # Should have 3 rows (one per region)
         assert len(rows) == 3
 
-        # Verify header (updated to match current CSV format with AZ column)
+        # Verify header (updated to match current CSV format with launch date columns)
         assert reader.fieldnames == [
             "Region Code",
             "Region Name",
+            "Launch Date",
+            "Launch Date Source",
+            "Announcement URL",
             "Availability Zones",
             "Service Count",
         ]
@@ -290,19 +302,22 @@ class TestOutputFormats:
                     for expected_sheet in expected_sheets:
                         assert expected_sheet in sheet_names
 
-                    # Test region summary sheet content
+                    # Test region summary sheet content (updated for RSS integration)
                     ws_summary = wb["Region Summary"]
                     assert ws_summary["A1"].value == "Region Code"
                     assert ws_summary["B1"].value == "Region Name"
-                    assert ws_summary["C1"].value == "Availability Zones"
-                    assert ws_summary["D1"].value == "Service Count"
+                    assert ws_summary["C1"].value == "Launch Date"
+                    assert ws_summary["D1"].value == "Launch Date Source"
+                    assert ws_summary["E1"].value == "Announcement URL"
+                    assert ws_summary["F1"].value == "Availability Zones"
+                    assert ws_summary["G1"].value == "Service Count"
 
                     # Check data rows (should have 3 regions)
                     assert ws_summary.max_row == 4  # 1 header + 3 data rows
-                    # Note: Excel might have extra columns, so just check we have at least 4
+                    # Note: Excel now has 7 columns for RSS integration
                     assert (
-                        ws_summary.max_column >= 4
-                    )  # At least: Region Code, Name, AZs, Service Count
+                        ws_summary.max_column >= 7
+                    )  # Region Code, Name, Launch Date, Source, URL, AZs, Service Count
                     wb.close()
                 except ImportError:
                     # openpyxl not available for testing, but file was created
