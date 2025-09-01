@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.4.2-orange.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.5.0-orange.svg)](CHANGELOG.md)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Passing-brightgreen.svg)](https://github.com/jxman/aws-services-reporter/actions)
 [![Security](https://img.shields.io/badge/Security-Excellent-brightgreen.svg)](#security)
 
@@ -16,7 +16,8 @@ AWS Services Reporter is a powerful Python tool that analyzes AWS service availa
 
 - 🚀 **Intelligent Caching**: 99% performance improvement (90s → 5s)
 - 🌍 **Complete Coverage**: All AWS regions and 400+ services  
-- 📊 **Multiple Formats**: CSV, JSON, Excel (5 sheets), Region Summary
+- 🔌 **Plugin System**: Extensible output formats with dynamic discovery (CSV, JSON, Excel, XML, custom plugins)
+- 🎯 **Advanced Filtering**: Service and region filtering with wildcard patterns
 - 📡 **RSS Integration**: Enhanced region launch dates from official AWS RSS feed
 - ⚡ **Concurrent Processing**: 10 concurrent API calls by default
 - 🎯 **Rich Progress Tracking**: Beautiful progress bars and status displays
@@ -66,13 +67,23 @@ aws-services/
 │   │   ├── csv_output.py         # CSV report generation
 │   │   ├── json_output.py        # JSON with statistics
 │   │   └── excel_output.py       # Excel with 5 sheets
+│   ├── plugins/                  # Plugin system (NEW v1.5.0)
+│   │   ├── base.py               # Plugin base class and registry
+│   │   ├── discovery.py          # Plugin discovery system
+│   │   ├── xml_plugin.py         # XML output plugin
+│   │   └── utils.py              # Plugin utilities
 │   └── utils/                    # Utilities & CLI
-│       └── cli.py                # Command-line interface
+│       ├── cli.py                # Enhanced CLI with filtering
+│       └── filters.py            # Advanced filtering system
 ├── reports/                      # Generated reports (organized)
 │   ├── csv/                      # CSV outputs (4 files)
 │   ├── json/                     # JSON outputs
 │   ├── excel/                    # Excel outputs (5 sheets)
+│   ├── xml/                      # XML plugin outputs (NEW)
 │   └── cache/                    # Cache files
+├── docs/                         # Sphinx documentation (NEW v1.5.0)
+│   ├── source/                   # Documentation source files
+│   └── build/                    # Generated documentation
 ├── tests/                        # Comprehensive test suite (80%+ coverage)
 ├── .pre-commit-config.yaml       # Pre-commit hooks configuration
 ├── README.md                     # Main documentation
@@ -230,6 +241,68 @@ python main.py --format json         # JSON only
 ```bash
 python main.py --log-level DEBUG     # Detailed logging
 python main.py --quiet               # Minimal output
+```
+
+## 🔌 Plugin System (NEW in v1.5.0)
+
+### Available Plugins
+```bash
+# View all available plugins
+python main.py --plugin-help
+
+# Use XML plugin
+python main.py --format xml
+
+# Multiple plugin formats
+python main.py --format json excel xml
+```
+
+### Built-in Plugins
+- **XML Plugin**: Hierarchical XML output with metadata
+- **Plugin System**: Extensible architecture for custom formats
+
+## 🎯 Advanced Filtering (NEW in v1.5.0)
+
+### Service Filtering
+```bash
+# Include specific services (wildcard patterns supported)
+python main.py --include-services "ec2*" "s3*" "lambda"
+
+# Exclude services
+python main.py --exclude-services "batch*" "*gov*"
+
+# Combine include and exclude filters
+python main.py --include-services "compute*" --exclude-services "*batch*"
+```
+
+### Region Filtering
+```bash
+# Include specific regions
+python main.py --include-regions "us-*" "eu-west-*"
+
+# Exclude regions (e.g., GovCloud regions)
+python main.py --exclude-regions "*gov*" "cn-*"
+
+# Filter by minimum service count
+python main.py --min-services 50
+
+# Complex filtering example
+python main.py --include-regions "us-*" --exclude-regions "*gov*" --min-services 30 --format json excel xml
+```
+
+### Filter Summary
+When filters are applied, you'll see a comprehensive summary:
+```
+🔍 Applied Filters:
+  • Include services: ec2*, s3*, lambda*
+  • Exclude regions: *gov*, cn-*
+  • Min services per region: 25
+
+📊 Filter Results:
+  • Regions: 38 → 28
+  • Services: 400 → 156
+  • Regions filtered: 26.3%
+  • Services filtered: 61.0%
 ```
 
 ## 📈 Sample Output
