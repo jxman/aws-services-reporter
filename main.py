@@ -30,10 +30,21 @@ from aws_services_reporter.output.csv_output import (
 )
 from aws_services_reporter.output.excel_output import create_excel_output
 from aws_services_reporter.output.json_output import create_json_output
+from aws_services_reporter.plugins.base import plugin_registry
+from aws_services_reporter.plugins.utils import (
+    initialize_plugins,
+    is_plugin_format,
+    show_plugin_help,
+)
 from aws_services_reporter.utils.cli import (
     parse_arguments,
     show_cache_help,
     show_examples,
+)
+from aws_services_reporter.utils.filters import (
+    apply_region_filters,
+    apply_service_filters,
+    get_filter_summary,
 )
 
 
@@ -81,6 +92,13 @@ def main() -> None:
     if getattr(args, "cache_help", False):
         show_cache_help()
         return
+
+    if getattr(args, "plugin_help", False):
+        show_plugin_help()
+        return
+
+    # Initialize plugin system
+    initialize_plugins(quiet)
 
     if getattr(args, "cache_stats", False):
         stats = cache.get_stats()
@@ -163,6 +181,58 @@ def main() -> None:
                 ):
                     progress.print_status("💾 Data cached for future runs", "green")
 
+        # Apply filters if specified
+        original_regions_count = len(regions)
+        original_services_count = len(set().union(*region_services.values()))
+
+        has_filters = any(
+            [
+                config.include_services,
+                config.exclude_services,
+                config.include_regions,
+                config.exclude_regions,
+                config.min_services,
+            ]
+        )
+
+        if has_filters:
+            if not quiet:
+                print("\n🔍 Applying filters...")
+
+            # Apply service filters first
+            if config.include_services or config.exclude_services:
+                region_services = apply_service_filters(
+                    region_services,
+                    config.include_services,
+                    config.exclude_services,
+                )
+
+            # Apply region filters
+            if config.include_regions or config.exclude_regions or config.min_services:
+                regions, region_services = apply_region_filters(
+                    regions,
+                    region_services,
+                    config.include_regions,
+                    config.exclude_regions,
+                    config.min_services,
+                )
+
+            # Show filter summary
+            filtered_services_count = len(set().union(*region_services.values()))
+            if not quiet:
+                filter_summary = get_filter_summary(
+                    original_regions_count,
+                    original_services_count,
+                    len(regions),
+                    filtered_services_count,
+                    config.include_services,
+                    config.exclude_services,
+                    config.include_regions,
+                    config.exclude_regions,
+                    config.min_services,
+                )
+                print(filter_summary)
+
         # Generate outputs
         if not quiet:
             print("\n📊 Generating outputs...")
@@ -222,6 +292,30 @@ def main() -> None:
                     config, regions, region_services, service_names, quiet
                 )
                 output_success.append("Service Summary")
+
+            else:
+                # Check if it's a plugin format
+                if is_plugin_format(format_type):
+                    plugin = plugin_registry.create_plugin(format_type)
+                    if plugin:
+                        if plugin.generate_output(
+                            config,
+                            regions,
+                            region_services,
+                            service_names,
+                            enhanced_services,
+                            metadata,
+                            quiet,
+                        ):
+                            output_success.append(f"{plugin.name.upper()} (plugin)")
+                    else:
+                        if not quiet:
+                            print(
+                                f"  ⚠️ Plugin {format_type} unavailable or dependencies missing"
+                            )
+                else:
+                    if not quiet:
+                        print(f"  ⚠️ Unknown format: {format_type}")
 
         # Show completion summary
         total_time = time.time() - start_time

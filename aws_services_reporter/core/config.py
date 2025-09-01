@@ -29,6 +29,11 @@ class Config:
         use_rich: Use Rich library for enhanced output
         output_formats: List of output formats to generate
         enhanced_metadata: Enable enhanced metadata fetching
+        include_services: List of service patterns to include (wildcards supported)
+        exclude_services: List of service patterns to exclude (wildcards supported)
+        include_regions: List of region patterns to include (wildcards supported)
+        exclude_regions: List of region patterns to exclude (wildcards supported)
+        min_services: Minimum number of services required for a region
     """
 
     output_dir: str = "reports"
@@ -45,6 +50,11 @@ class Config:
     use_rich: bool = True
     output_formats: Optional[List[str]] = None
     enhanced_metadata: bool = True
+    include_services: Optional[List[str]] = None
+    exclude_services: Optional[List[str]] = None
+    include_regions: Optional[List[str]] = None
+    exclude_regions: Optional[List[str]] = None
+    min_services: Optional[int] = None
 
 
 def create_config_from_args(args: argparse.Namespace) -> Config:
@@ -71,6 +81,11 @@ def create_config_from_args(args: argparse.Namespace) -> Config:
         use_rich=not getattr(args, "quiet", False),
         output_formats=args.format,
         enhanced_metadata=not getattr(args, "no_enhanced_metadata", False),
+        include_services=getattr(args, "include_services", None),
+        exclude_services=getattr(args, "exclude_services", None),
+        include_regions=getattr(args, "include_regions", None),
+        exclude_regions=getattr(args, "exclude_regions", None),
+        min_services=getattr(args, "min_services", None),
     )
 
 

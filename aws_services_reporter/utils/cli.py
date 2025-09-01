@@ -5,6 +5,9 @@ Handles argument parsing, help text generation, and CLI user interactions.
 
 import argparse
 
+# Import plugin utilities
+from ..plugins.utils import get_available_formats, show_plugin_help
+
 
 def parse_arguments() -> argparse.Namespace:
     """Parse and validate command line arguments.
@@ -44,20 +47,41 @@ Examples:
         help="Output filename for services-regions matrix CSV (default: services_regions_matrix.csv)",
     )
 
-    # Output formats
-    valid_formats = [
-        "csv",
-        "json",
-        "excel",
-        "region-summary",
-        "service-summary",
-    ]
+    # Output formats (dynamic - includes plugins)
+    valid_formats = get_available_formats()
     parser.add_argument(
         "--format",
         nargs="+",
         choices=valid_formats,
         default=["csv"],
-        help=f"Output formats to generate: {', '.join(valid_formats)} (default: csv)",
+        help=f"Output formats to generate: {', '.join(valid_formats[:5])}{'...' if len(valid_formats) > 5 else ''} (default: csv)",
+    )
+
+    # Filtering options
+    parser.add_argument(
+        "--include-services",
+        nargs="+",
+        help="Only include services matching these patterns (supports wildcards)",
+    )
+    parser.add_argument(
+        "--exclude-services",
+        nargs="+",
+        help="Exclude services matching these patterns (supports wildcards)",
+    )
+    parser.add_argument(
+        "--include-regions",
+        nargs="+",
+        help="Only include these regions (region codes or patterns)",
+    )
+    parser.add_argument(
+        "--exclude-regions",
+        nargs="+",
+        help="Exclude these regions (region codes or patterns)",
+    )
+    parser.add_argument(
+        "--min-services",
+        type=int,
+        help="Only include regions with at least this many services",
     )
 
     # AWS configuration
@@ -125,7 +149,12 @@ Examples:
         help="Show detailed caching help and exit",
     )
     parser.add_argument(
-        "--version", action="version", version="AWS Services Reporter v1.4.2"
+        "--plugin-help",
+        action="store_true",
+        help="Show available plugins and their status and exit",
+    )
+    parser.add_argument(
+        "--version", action="version", version="AWS Services Reporter v1.5.0"
     )
 
     # Logging and output
