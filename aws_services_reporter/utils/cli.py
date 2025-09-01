@@ -4,7 +4,6 @@ Handles argument parsing, help text generation, and CLI user interactions.
 """
 
 import argparse
-from typing import List
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -46,7 +45,13 @@ Examples:
     )
 
     # Output formats
-    valid_formats = ["csv", "json", "excel", "region-summary", "service-summary"]
+    valid_formats = [
+        "csv",
+        "json",
+        "excel",
+        "region-summary",
+        "service-summary",
+    ]
     parser.add_argument(
         "--format",
         nargs="+",
@@ -81,7 +86,9 @@ Examples:
 
     # Caching system
     parser.add_argument(
-        "--no-cache", action="store_true", help="Disable caching and fetch fresh data"
+        "--no-cache",
+        action="store_true",
+        help="Disable caching and fetch fresh data",
     )
     parser.add_argument(
         "--no-enhanced-metadata",
@@ -100,7 +107,9 @@ Examples:
         help="Cache file name (default: cache/aws_data_cache.json)",
     )
     parser.add_argument(
-        "--cache-stats", action="store_true", help="Show cache statistics and exit"
+        "--cache-stats",
+        action="store_true",
+        help="Show cache statistics and exit",
     )
     parser.add_argument(
         "--clear-cache", action="store_true", help="Clear cache and exit"
@@ -111,10 +120,12 @@ Examples:
         "--examples", action="store_true", help="Show usage examples and exit"
     )
     parser.add_argument(
-        "--cache-help", action="store_true", help="Show detailed caching help and exit"
+        "--cache-help",
+        action="store_true",
+        help="Show detailed caching help and exit",
     )
     parser.add_argument(
-        "--version", action="version", version="AWS Services Reporter v1.4.1"
+        "--version", action="version", version="AWS Services Reporter v1.4.2"
     )
 
     # Logging and output

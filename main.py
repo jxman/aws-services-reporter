@@ -155,7 +155,11 @@ def main() -> None:
             # Save to cache if enabled
             if config.cache_enabled:
                 if cache.save(
-                    regions, region_services, service_names, enhanced_services, metadata
+                    regions,
+                    region_services,
+                    service_names,
+                    enhanced_services,
+                    metadata,
                 ):
                     progress.print_status("💾 Data cached for future runs", "green")
 

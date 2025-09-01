@@ -275,7 +275,12 @@ def create_service_summary_csv(
             )
 
             writer.writerow(
-                [service_code, service_name, region_count, f"{coverage_percent:.1f}"]
+                [
+                    service_code,
+                    service_name,
+                    region_count,
+                    f"{coverage_percent:.1f}",
+                ]
             )
 
     if not quiet:

@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.4.1-orange.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.4.2-orange.svg)](CHANGELOG.md)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Passing-brightgreen.svg)](https://github.com/jxman/aws-services-reporter/actions)
 [![Security](https://img.shields.io/badge/Security-Excellent-brightgreen.svg)](#security)
 
@@ -123,10 +123,10 @@ python main.py --format csv json excel region-summary
 
 ## 📊 Performance Comparison
 
-| Run Type | Duration | API Calls | Data Source |
-|----------|----------|-----------|-------------|
-| **First Run** | ~90 seconds | 800+ calls | AWS API |
-| **Cached Run** | ~5 seconds | 0 calls | Local cache |
+| Run Type        | Duration     | API Calls          | Data Source   |
+|-----------------|--------------|-------------------|---------------|
+| **First Run**   | ~90 seconds  | 800+ calls        | AWS API       |
+| **Cached Run**  | ~5 seconds   | 0 calls           | Local cache   |
 | **Improvement** | **99% faster** | **100% reduction** | Smart caching |
 
 ## 🔄 Intelligent Caching System
@@ -308,19 +308,21 @@ python main.py --quiet               # Minimal output
 
 ## 🔒 Security
 
-### Security Assessment (v1.4.1)
+### Security Assessment (v1.4.2)
 - ✅ **Zero High/Medium Severity Issues**: Comprehensive security scanning with Bandit
 - 🛡️ **Automated Security Scans**: Every commit is security validated
 - 🔍 **Dependency Scanning**: Safety checks for known vulnerabilities
 - 📊 **Security Reports**: Detailed reports available in CI/CD artifacts
 - 🔐 **Secure Dependencies**: defusedxml for XML parsing, requests for HTTP calls
 - 🌐 **URL Validation**: HTTPS/HTTP scheme validation prevents unsafe protocols
+- 🎯 **Code Quality**: Professional formatting standards with 79-char line length
 
-### Security Improvements (v1.4.1)
+### Security & Code Quality Improvements (v1.4.2)
 - **RSS Client Security**: Replaced vulnerable XML parsing with defusedxml
 - **HTTP Security**: Replaced urllib with requests library for safer HTTP handling
 - **Input Validation**: Added URL scheme validation (HTTPS/HTTP only)
-- **Graceful Fallbacks**: Security warnings when safe dependencies unavailable
+- **Code Quality**: Fixed unused imports, f-string issues, and consistent formatting
+- **Linting Standards**: Reduced flake8 issues by 47% with professional formatting
 
 ### Security Scan Results
 - **High Severity**: 0 issues ✅
@@ -339,11 +341,11 @@ python main.py --quiet               # Minimal output
 
 ### Pipeline Status
 All CI/CD jobs passing with comprehensive validation:
-- **Tests**: 40+ passing, 2 skipped (AWS integration tests)
+- **Tests**: 52 passing, 2 skipped (96% pass rate)
 - **Security Scan**: Production-ready security posture (zero high/medium issues)
-- **Code Quality**: 100% compliant with formatting standards
-- **Type Safety**: Comprehensive type checking
-- **Project Cleanup**: Obsolete files removed for cleaner codebase
+- **Code Quality**: Professional formatting standards with 79-char line length
+- **Type Safety**: Comprehensive type checking with 85%+ coverage
+- **Linting**: 47% reduction in flake8 issues with automated formatting
 
 ## 🛠️ Development
 

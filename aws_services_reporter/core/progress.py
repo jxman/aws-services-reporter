@@ -145,7 +145,10 @@ class ProgressTracker:
             print(message)
 
     def print_table(
-        self, data: List[List[str]], headers: List[str], title: Optional[str] = None
+        self,
+        data: List[List[str]],
+        headers: List[str],
+        title: Optional[str] = None,
     ) -> None:
         """Print table with Rich formatting if available.
 

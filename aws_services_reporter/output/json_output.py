@@ -70,7 +70,7 @@ def create_json_output(
     logger = logging.getLogger(__name__)
 
     if not quiet:
-        print(f"  📝 Creating JSON output...")
+        print("  📝 Creating JSON output...")
 
     # Prepare comprehensive data structure
     all_services = sorted(
@@ -104,10 +104,12 @@ def create_json_output(
     # Find most/least available services
     if service_stats:
         most_available = max(
-            service_stats.keys(), key=lambda x: service_stats[x]["available_in"]
+            service_stats.keys(),
+            key=lambda x: service_stats[x]["available_in"],
         )
         least_available = min(
-            service_stats.keys(), key=lambda x: service_stats[x]["available_in"]
+            service_stats.keys(),
+            key=lambda x: service_stats[x]["available_in"],
         )
     else:
         most_available = least_available = None

@@ -223,7 +223,7 @@ def get_rss_region_launch_dates(config: Config) -> Dict[str, Dict[str, str]]:
         "https://docs.aws.amazon.com/global-infrastructure/latest/regions/regions.rss"
     )
 
-    logger.info(f"Fetching AWS region launch dates from RSS feed")
+    logger.info("Fetching AWS region launch dates from RSS feed")
 
     # Fetch RSS data
     rss_data = fetch_rss_data(rss_url)

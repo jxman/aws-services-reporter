@@ -8,7 +8,7 @@ import logging
 import random
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 import boto3
 from botocore.exceptions import ClientError
@@ -299,7 +299,7 @@ def get_all_regions_and_names(
                 source_indicator = (
                     "📡"
                     if merged_launch_data["source"] == "RSS"
-                    else "🔧" if merged_launch_data["source"] == "SSM" else "❓"
+                    else ("🔧" if merged_launch_data["source"] == "SSM" else "❓")
                 )
                 print(
                     f"    🌍 {completed_count}/{len(region_params)}: {code} → {details['name']} (AZs: {details['az_count']}, Launch: {merged_launch_data['launch_date']} {source_indicator})"

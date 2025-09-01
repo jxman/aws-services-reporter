@@ -51,13 +51,11 @@ def create_excel_output(
     logger = logging.getLogger(__name__)
 
     try:
-        import pandas as pd
         from openpyxl import Workbook
         from openpyxl.styles import Alignment, Font, PatternFill
-        from openpyxl.utils.dataframe import dataframe_to_rows
 
         if not quiet:
-            print(f"  📝 Creating Excel output...")
+            print("  📝 Creating Excel output...")
 
         # Prepare data for Excel sheets
         all_service_codes = sorted(
@@ -88,7 +86,12 @@ def create_excel_output(
                 )
 
         # Add headers and data
-        headers = ["Region Code", "Region Name", "Service Code", "Service Name"]
+        headers = [
+            "Region Code",
+            "Region Name",
+            "Service Code",
+            "Service Name",
+        ]
         ws_regional.append(headers)
         for row in regional_data:
             ws_regional.append(row)
@@ -230,7 +233,12 @@ def create_excel_output(
             )
 
             service_summary_data.append(
-                [service_code, service_name, region_count, f"{coverage_percent:.1f}%"]
+                [
+                    service_code,
+                    service_name,
+                    region_count,
+                    f"{coverage_percent:.1f}%",
+                ]
             )
 
         # Add headers and data
@@ -319,7 +327,10 @@ def create_excel_output(
                 [
                     [""],
                     ["Fetch Metadata", ""],
-                    ["Fetch Duration (seconds)", metadata.get("fetch_duration", "N/A")],
+                    [
+                        "Fetch Duration (seconds)",
+                        metadata.get("fetch_duration", "N/A"),
+                    ],
                     ["AWS Profile", metadata.get("aws_profile", "default")],
                 ]
             )
@@ -333,11 +344,19 @@ def create_excel_output(
                 for cell in row:
                     cell.font = Font(bold=True, size=12)
                     cell.fill = PatternFill(
-                        start_color="D9D9D9", end_color="D9D9D9", fill_type="solid"
+                        start_color="D9D9D9",
+                        end_color="D9D9D9",
+                        fill_type="solid",
                     )
 
         # Auto-adjust column widths
-        for ws in [ws_regional, ws_matrix, ws_summary, ws_service_summary, ws_stats]:
+        for ws in [
+            ws_regional,
+            ws_matrix,
+            ws_summary,
+            ws_service_summary,
+            ws_stats,
+        ]:
             for column in ws.columns:
                 max_length = 0
                 column_letter = column[0].column_letter
