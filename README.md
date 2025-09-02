@@ -116,6 +116,50 @@ source .venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
+### 🔑 AWS Credentials Setup (Required)
+
+**⚠️ IMPORTANT**: AWS credentials with SSM permissions are required.
+
+**Required IAM Policy (Least Privilege):**
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParametersByPath",
+                "ssm:GetParameter"
+            ],
+            "Resource": "arn:aws:ssm:*:*:parameter/aws/service/global-infrastructure/*"
+        }
+    ]
+}
+```
+
+**Setup Options:**
+```bash
+# Option 1: AWS CLI (Recommended)
+aws configure
+
+# Option 2: Environment Variables  
+export AWS_ACCESS_KEY_ID=your-key-id
+export AWS_SECRET_ACCESS_KEY=your-secret-key
+export AWS_DEFAULT_REGION=us-east-1
+
+# Option 3: Use specific profile
+python main.py --profile your-profile-name
+
+# Option 4: IAM Role (when running on AWS infrastructure)
+# Attach the above IAM policy to your EC2/Lambda/ECS role
+```
+
+**Verify Setup:**
+```bash
+aws sts get-caller-identity  # Test connectivity
+python main.py --version     # Test tool access
+```
+
 ### Basic Usage
 
 ```bash

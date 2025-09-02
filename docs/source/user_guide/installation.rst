@@ -27,24 +27,14 @@ Quick Installation
 
     pip install -r requirements.txt
 
-AWS Credentials Setup
----------------------
+AWS Credentials Setup (Required)
+----------------------------------
 
-The tool requires AWS credentials with SSM read permissions. Choose one method:
+**⚠️ IMPORTANT**: AWS credentials are required for this tool to function. The tool queries AWS Systems Manager Parameter Store and cannot operate without proper authentication.
 
-**Option 1: AWS CLI Configuration**::
+**Required IAM Permissions (Least Privilege)**
 
-    aws configure
-
-**Option 2: Environment Variables**::
-
-    export AWS_ACCESS_KEY_ID=your-key-id
-    export AWS_SECRET_ACCESS_KEY=your-secret-key
-    export AWS_DEFAULT_REGION=us-east-1
-
-**Option 3: IAM Role (EC2/Lambda)**
-
-If running on AWS infrastructure, attach an IAM role with the following policy::
+All credential methods below must have the following IAM policy attached::
 
     {
         "Version": "2012-10-17",
@@ -52,13 +42,66 @@ If running on AWS infrastructure, attach an IAM role with the following policy::
             {
                 "Effect": "Allow",
                 "Action": [
-                    "ssm:GetParameter",
-                    "ssm:GetParameters"
+                    "ssm:GetParametersByPath",
+                    "ssm:GetParameter"
                 ],
                 "Resource": "arn:aws:ssm:*:*:parameter/aws/service/global-infrastructure/*"
             }
         ]
     }
+
+**Credential Configuration Options**
+
+Choose one of the following methods to provide AWS credentials:
+
+**Option 1: AWS CLI Configuration (Recommended)**
+
+Install and configure the AWS CLI with your credentials::
+
+    # Install AWS CLI (if not already installed)
+    pip install awscli
+
+    # Configure credentials
+    aws configure
+
+This will prompt you for:
+- AWS Access Key ID
+- AWS Secret Access Key
+- Default region (recommend: us-east-1)
+- Output format (recommend: json)
+
+**Option 2: Environment Variables**
+
+Set AWS credentials as environment variables::
+
+    export AWS_ACCESS_KEY_ID=your-key-id
+    export AWS_SECRET_ACCESS_KEY=your-secret-key
+    export AWS_DEFAULT_REGION=us-east-1
+
+**Option 3: IAM Role (EC2/Lambda/ECS)**
+
+If running on AWS infrastructure, attach an IAM role with the above policy.
+No additional configuration needed - the tool will automatically use the instance role.
+
+**Option 4: AWS SSO/Profile**
+
+If using AWS SSO or named profiles::
+
+    # Configure SSO or profile
+    aws configure sso
+
+    # Use specific profile with the tool
+    python main.py --profile your-profile-name
+
+**Credential Verification**
+
+Test your AWS credentials setup::
+
+    # Test AWS connectivity
+    aws sts get-caller-identity
+
+    # Test SSM parameter access
+    aws ssm get-parameter --name "/aws/service/global-infrastructure/regions/us-east-1/longName" --region us-east-1
 
 Development Installation
 ------------------------
