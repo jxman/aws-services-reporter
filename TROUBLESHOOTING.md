@@ -31,9 +31,11 @@ pip install -r requirements.txt
 
 #### Missing Optional Dependencies
 **Problem**: Excel output doesn't work
-```
+
+```text
 Excel output requires pandas and openpyxl
 ```
+
 **Solution**: Install optional dependencies
 ```bash
 pip install pandas openpyxl
@@ -45,9 +47,11 @@ pip install -r requirements.txt
 
 #### AWS Credentials Not Found
 **Problem**:
-```
+
+```text
 botocore.exceptions.NoCredentialsError: Unable to locate credentials
 ```
+
 **Solutions**:
 1. **AWS CLI Configuration**:
    ```bash
@@ -75,9 +79,11 @@ botocore.exceptions.NoCredentialsError: Unable to locate credentials
 
 #### Permission Denied Errors
 **Problem**:
-```
+
+```text
 botocore.exceptions.ClientError: An error occurred (AccessDenied)
 ```
+
 **Solution**: Ensure your AWS credentials have these permissions:
 ```json
 {
@@ -99,9 +105,11 @@ botocore.exceptions.ClientError: An error occurred (AccessDenied)
 
 #### Region Access Issues
 **Problem**: Some regions not accessible
-```
+
+```text
 botocore.exceptions.ClientError: An error occurred (UnauthorizedOperation)
 ```
+
 **Solutions**:
 1. **Check region availability**:
    ```bash
@@ -142,9 +150,11 @@ botocore.exceptions.ClientError: An error occurred (UnauthorizedOperation)
 
 #### Connection Timeouts
 **Problem**:
-```
+
+```text
 botocore.exceptions.ConnectTimeoutError: Connect timeout
 ```
+
 **Solutions**:
 1. **Increase retries**:
    ```bash
@@ -160,9 +170,11 @@ botocore.exceptions.ConnectTimeoutError: Connect timeout
 
 #### Rate Limiting
 **Problem**:
-```
+
+```text
 botocore.exceptions.ClientError: Throttling
 ```
+
 **Solution**: Built-in exponential backoff handles this automatically. If persistent:
 ```bash
 python main.py --max-workers 5  # Reduce concurrency
@@ -172,7 +184,8 @@ python main.py --max-workers 5  # Reduce concurrency
 
 #### Output File Locations (v1.3.0+)
 **Organized Directory Structure**: All outputs are organized in subdirectories under `reports/`:
-```
+
+```text
 reports/
 ├── csv/                    # CSV reports
 │   ├── regions_services.csv
@@ -184,13 +197,16 @@ reports/
 └── cache/                  # Cache files
     └── aws_data_cache.json
 ```
+
 **Note**: Legacy files in the root `reports/` directory are automatically cleaned up.
 
 #### Permission Denied on File Write
 **Problem**:
-```
+
+```text
 PermissionError: [Errno 13] Permission denied: './output.csv'
 ```
+
 **Solutions**:
 1. **Change output directory**:
    ```bash
@@ -206,6 +222,7 @@ PermissionError: [Errno 13] Permission denied: './output.csv'
 #### Corrupted Cache File
 **Problem**: Cache errors or invalid data
 **Solution**: Clear and rebuild cache:
+
 ```bash
 python main.py --clear-cache
 python main.py  # Rebuilds cache
@@ -276,6 +293,7 @@ aws ssm get-parameter --name "/aws/service/global-infrastructure/regions/us-east
 ```
 
 ### Cache Diagnostics
+
 ```bash
 # View cache statistics
 python main.py --cache-stats
@@ -289,6 +307,7 @@ python main.py --no-cache --max-workers 5
 ```
 
 ### Performance Profiling
+
 ```bash
 # Time execution
 time python main.py --quiet
@@ -304,6 +323,7 @@ python main.py --region eu-west-1 --quiet
 
 ### Log Analysis
 Most issues can be diagnosed from logs:
+
 ```bash
 python main.py --log-level DEBUG 2>&1 | tee debug.log
 ```
@@ -316,6 +336,7 @@ Common log patterns:
 
 ### Environment Information
 When reporting issues, include:
+
 ```bash
 python --version
 pip list | grep -E "(boto3|rich|pandas)"
@@ -346,6 +367,7 @@ python main.py --version
 
 ### Production Usage
 For automated/production use:
+
 ```bash
 # Robust production command
 python main.py \

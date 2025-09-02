@@ -1,6 +1,6 @@
 # AWS Services Reporter - Quick Reference
 
-> **Version 1.4.1** | **CI/CD**: ✅ Passing | **Security**: ✅ Hardened | **Tests**: 52+ passing | **RSS**: 📡 Integrated
+> **Version 1.5.0** | **CI/CD**: ✅ Passing | **Security**: ✅ Hardened | **Tests**: 52+ passing | **Plugins**: 🔌 System Ready
 
 ## 🚀 **Quick Start**
 
@@ -45,6 +45,30 @@ python main.py --quiet              # Silent mode
 ```bash
 python main.py --profile prod       # Use AWS profile
 python main.py --region us-west-2   # Change region
+```
+
+## 🔌 **Plugin System** (New in v1.5.0)
+
+```bash
+python main.py --plugin-help            # View available plugins
+python main.py --format xml             # Use XML plugin
+python main.py --format json excel xml  # Multiple plugin formats
+```
+
+## 🎯 **Advanced Filtering** (New in v1.5.0)
+
+```bash
+# Service filtering
+python main.py --include-services "ec2*" "s3*"
+python main.py --exclude-services "batch*" "*gov*"
+
+# Region filtering  
+python main.py --include-regions "us-*" "eu-west-*"
+python main.py --exclude-regions "*gov*" "cn-*"
+python main.py --min-services 50
+
+# Combined filtering
+python main.py --include-regions "us-*" --exclude-regions "*gov*" --min-services 30 --format json excel xml
 ```
 
 ## 📁 **Custom Output**
@@ -107,7 +131,7 @@ gh run list --limit 5                       # Recent workflow runs
 gh run view --web                            # Open latest run in browser
 ```
 
-## 🔐 **Security & Requirements** (v1.4.1)
+## 🔐 **Security & Requirements** (v1.5.0)
 
 ### Security Dependencies
 - `defusedxml>=0.7.1` - Secure XML parsing (RSS feeds)

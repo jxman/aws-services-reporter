@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-1.5.0-orange.svg)](CHANGELOG.md)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Passing-brightgreen.svg)](https://github.com/jxman/aws-services-reporter/actions)
-[![Security](https://img.shields.io/badge/Security-Excellent-brightgreen.svg)](#security)
+[![Security](https://img.shields.io/badge/Security-Excellent-brightgreen.svg)](AWS_IAM_LEAST_PRIVILEGE_ANALYSIS.md)
 
 ## 📋 Overview
 
@@ -31,7 +31,7 @@ AWS Services Reporter is a powerful Python tool that analyzes AWS service availa
 
 ## 🏗️ Architecture
 
-```
+```text
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   CLI Parser    │───▶│  Config Manager │───▶│ Progress Tracker│
 │ (args parsing)  │    │ (settings)      │    │ (Rich UI)       │
@@ -52,7 +52,7 @@ AWS Services Reporter is a powerful Python tool that analyzes AWS service availa
 
 ### 📁 Project Structure
 
-```
+```text
 aws-services/
 ├── aws_services_reporter/          # Modular package
 │   ├── core/                      # Core functionality
@@ -120,7 +120,8 @@ pip install -r requirements.txt
 
 **⚠️ IMPORTANT**: AWS credentials with SSM permissions are required.
 
-**Required IAM Policy (Least Privilege):**
+#### Required IAM Policy (Least Privilege)
+
 ```json
 {
     "Version": "2012-10-17",
@@ -137,7 +138,8 @@ pip install -r requirements.txt
 }
 ```
 
-**Setup Options:**
+#### Setup Options
+
 ```bash
 # Option 1: AWS CLI (Recommended)
 aws configure
@@ -154,7 +156,8 @@ python main.py --profile your-profile-name
 # Attach the above IAM policy to your EC2/Lambda/ECS role
 ```
 
-**Verify Setup:**
+#### Verify Setup
+
 ```bash
 aws sts get-caller-identity  # Test connectivity
 python main.py --version     # Test tool access
@@ -187,6 +190,7 @@ python main.py --format csv json excel region-summary
 ## 🔄 Intelligent Caching System
 
 ### How It Works
+
 1. **First Run**: Fetches data from AWS (90 seconds), saves to cache
 2. **Subsequent Runs**: Loads from cache (5 seconds) - 99% time savings
 3. **TTL Validation**: Auto-expires after 24 hours (configurable)
@@ -211,26 +215,31 @@ python main.py --cache-hours 48  # 48-hour cache
 ## 🔗 RSS Feed Integration
 
 ### Enhanced Launch Date Data
+
 **New in v1.4.0**: The reporter now integrates AWS region launch dates from the official AWS documentation RSS feed to provide comprehensive historical data.
 
 #### Data Sources Integration
+
 - **Primary**: Official AWS RSS feed (87% coverage - 33 of 38 regions)
 - **Fallback**: AWS SSM Parameter Store data  
 - **Priority**: RSS data takes precedence when available for accuracy
 
 #### RSS Feed Features
+
 - **Precise Launch Dates**: ISO format (YYYY-MM-DD) from official announcements
 - **Announcement URLs**: Direct links to AWS blog posts and launch announcements
 - **Formatted Dates**: Human-readable dates from RSS (e.g., "Fri, 25 Aug 2006 12:00:00 GMT")
 - **Data Source Tracking**: Indicates whether data comes from RSS, SSM, or is Unknown
 
 #### Terminal Output Indicators
+
 - 📡 **RSS**: Data from official RSS feed (most regions)
 - 🔧 **SSM**: Data from AWS SSM Parameter Store (fallback)
 - ❓ **Unknown**: No launch date available (e.g., GovCloud, China regions)
 
 Example terminal output:
-```
+
+```text
 🌍 1/38: us-east-1 → US East (N. Virginia) (AZs: 6, Launch: 2006-08-25 📡)
 🌍 2/38: eu-west-1 → Europe (Ireland) (AZs: 3, Launch: 2008-12-10 📡)
 🌍 3/38: us-gov-west-1 → AWS GovCloud (US-West) (AZs: 3, Launch: Unknown ❓)
@@ -239,16 +248,19 @@ Example terminal output:
 ## 📋 Output Formats
 
 ### 1. CSV Reports (`reports/csv/`)
+
 - **regions_services.csv**: Each region with its available services
 - **services_regions_matrix.csv**: Service × Region availability matrix
 - **region_summary.csv**: Summary of regions with launch dates, sources, announcement URLs, and service counts
 - **service_summary.csv**: Summary of services with regional coverage statistics
 
 ### 2. JSON Report (`reports/json/`)
+
 - **regions_services.json**: Complete data with statistics and metadata
 - Includes service coverage percentages and regional analysis
 
 ### 3. Excel Report (`reports/excel/`) - requires pandas + openpyxl
+
 - **regions_services.xlsx**: Multi-sheet workbook with 5 formatted sheets:
   - **Regional Services**: Detailed region-service mappings
   - **Service Matrix**: Service × Region availability grid
@@ -257,24 +269,28 @@ Example terminal output:
   - **Statistics**: Overall metrics and insights
 
 ### 4. Intelligent Cache (`reports/cache/`)
+
 - **aws_data_cache.json**: TTL-based cache with automatic validation
 - 99% performance improvement for subsequent runs
 
 ## ⚙️ Configuration Options
 
 ### AWS Configuration
+
 ```bash
 python main.py --profile production --region us-west-2
 python main.py --max-retries 5
 ```
 
 ### Performance Tuning
+
 ```bash
 python main.py --max-workers 20      # More concurrent calls (faster)
 python main.py --max-workers 5       # Fewer calls (gentler)
 ```
 
 ### Output Customization
+
 ```bash
 python main.py --output-dir ./custom-reports
 python main.py --regions-file my_regions.csv
@@ -282,6 +298,7 @@ python main.py --format json         # JSON only
 ```
 
 ### Logging & Debugging
+
 ```bash
 python main.py --log-level DEBUG     # Detailed logging
 python main.py --quiet               # Minimal output
@@ -290,6 +307,7 @@ python main.py --quiet               # Minimal output
 ## 🔌 Plugin System (NEW in v1.5.0)
 
 ### Available Plugins
+
 ```bash
 # View all available plugins
 python main.py --plugin-help
@@ -302,12 +320,14 @@ python main.py --format json excel xml
 ```
 
 ### Built-in Plugins
+
 - **XML Plugin**: Hierarchical XML output with metadata
 - **Plugin System**: Extensible architecture for custom formats
 
 ## 🎯 Advanced Filtering (NEW in v1.5.0)
 
 ### Service Filtering
+
 ```bash
 # Include specific services (wildcard patterns supported)
 python main.py --include-services "ec2*" "s3*" "lambda"
@@ -320,6 +340,7 @@ python main.py --include-services "compute*" --exclude-services "*batch*"
 ```
 
 ### Region Filtering
+
 ```bash
 # Include specific regions
 python main.py --include-regions "us-*" "eu-west-*"
@@ -335,8 +356,10 @@ python main.py --include-regions "us-*" --exclude-regions "*gov*" --min-services
 ```
 
 ### Filter Summary
+
 When filters are applied, you'll see a comprehensive summary:
-```
+
+```text
 🔍 Applied Filters:
   • Include services: ec2*, s3*, lambda*
   • Exclude regions: *gov*, cn-*
@@ -352,7 +375,8 @@ When filters are applied, you'll see a comprehensive summary:
 ## 📈 Sample Output
 
 ### Console Output (with Rich formatting)
-```
+
+```text
 🔍 Checking cache...
 ✅ Using cached data
 
@@ -388,12 +412,13 @@ When filters are applied, you'll see a comprehensive summary:
 ```
 
 ### JSON Output Sample
+
 ```json
 {
   "generated_at": "2024-08-26T13:30:00.000000",
   "generator": {
     "name": "AWS Services Reporter",
-    "version": "1.3.0"
+    "version": "1.5.0"
   },
   "summary": {
     "total_regions": 37,
@@ -426,6 +451,7 @@ When filters are applied, you'll see a comprehensive summary:
 ## 🔒 Security
 
 ### Security Assessment (v1.4.2)
+
 - ✅ **Zero High/Medium Severity Issues**: Comprehensive security scanning with Bandit
 - 🛡️ **Automated Security Scans**: Every commit is security validated
 - 🔍 **Dependency Scanning**: Safety checks for known vulnerabilities
@@ -435,6 +461,7 @@ When filters are applied, you'll see a comprehensive summary:
 - 🎯 **Code Quality**: Professional formatting standards with 79-char line length
 
 ### Security & Code Quality Improvements (v1.4.2)
+
 - **RSS Client Security**: Replaced vulnerable XML parsing with defusedxml
 - **HTTP Security**: Replaced urllib with requests library for safer HTTP handling
 - **Input Validation**: Added URL scheme validation (HTTPS/HTTP only)
@@ -442,6 +469,7 @@ When filters are applied, you'll see a comprehensive summary:
 - **Linting Standards**: Reduced flake8 issues by 47% with professional formatting
 
 ### Security Scan Results
+
 - **High Severity**: 0 issues ✅
 - **Medium Severity**: 0 issues ✅
 - **Low Severity**: Only test assertions and standard library usage (expected)
@@ -449,6 +477,7 @@ When filters are applied, you'll see a comprehensive summary:
 ## 🚀 CI/CD Pipeline
 
 ### Automated Quality Assurance
+
 - ✅ **Multi-Python Testing**: Python 3.8, 3.9, 3.10, 3.11
 - ✅ **Code Quality**: Black formatting, isort imports, flake8 linting
 - ✅ **Type Checking**: MyPy static analysis with comprehensive coverage
@@ -457,7 +486,9 @@ When filters are applied, you'll see a comprehensive summary:
 - ✅ **Build Artifacts**: Automated release packaging
 
 ### Pipeline Status
+
 All CI/CD jobs passing with comprehensive validation:
+
 - **Tests**: 52 passing, 2 skipped (96% pass rate)
 - **Security Scan**: Production-ready security posture (zero high/medium issues)
 - **Code Quality**: Professional formatting standards with 79-char line length
@@ -467,6 +498,7 @@ All CI/CD jobs passing with comprehensive validation:
 ## 🛠️ Development
 
 ### Requirements
+
 - **Python 3.8+**
 - **boto3** (AWS SDK)
 - **rich** (Enhanced UI)
@@ -476,6 +508,7 @@ All CI/CD jobs passing with comprehensive validation:
 - **Optional**: pandas + openpyxl (Excel output)
 
 ### Development Setup
+
 ```bash
 # Install development dependencies
 pip install -r requirements-dev.txt
@@ -505,6 +538,7 @@ pre-commit run --all-files
 ```
 
 ### Testing
+
 ```bash
 # Run all tests with coverage (production standard)
 python -m pytest tests/ -v --cov=aws_services_reporter --cov-report=term-missing
@@ -538,10 +572,12 @@ python -m pytest tests/ -k "output"    # Output format tests only
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
 3. **Set up development environment**:
+
    ```bash
    pip install -r requirements-dev.txt
    pre-commit install  # Install pre-commit hooks
    ```
+
 4. **Run full test suite** (`python -m pytest tests/ -v --cov=aws_services_reporter`)
 5. **Run code quality checks** (`pre-commit run --all-files`)
 6. **Commit** changes (`git commit -m 'Add amazing feature'`) - hooks run automatically
@@ -549,6 +585,7 @@ python -m pytest tests/ -k "output"    # Output format tests only
 8. **Open** a Pull Request (CI/CD will automatically validate)
 
 ### Quality Standards
+
 - ✅ All tests must pass (40+ tests across multiple Python versions)
 - ✅ Pre-commit hooks must pass (automatic formatting and quality checks)
 - ✅ Code must be formatted with black/isort (enforced by pre-commit)
@@ -568,6 +605,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ for the AWS community**
+## Made with ❤️ for the AWS community
 
 *For support, please see the [Troubleshooting Guide](TROUBLESHOOTING.md) or open an issue.*

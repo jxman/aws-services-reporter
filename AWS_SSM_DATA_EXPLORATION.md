@@ -22,7 +22,8 @@ The AWS Services Reporter currently uses:
 - **Path Pattern**: `/aws/service/global-infrastructure/services/{service_code}/longName`
 - **Content**: Human-readable service names
 - **Verified Examples**:
-  ```
+
+  ```text
   /aws/service/global-infrastructure/services/ec2/longName
   → "Amazon Elastic Compute Cloud (EC2)"
 
@@ -48,7 +49,8 @@ The AWS Services Reporter currently uses:
 - **Path Pattern**: `/aws/service/global-infrastructure/regions/{region_code}/longName`
 - **Content**: Full region names
 - **Verified Examples**:
-  ```
+
+  ```text
   /aws/service/global-infrastructure/regions/us-east-1/longName
   → "US East (N. Virginia)"
 
@@ -62,7 +64,8 @@ The AWS Services Reporter currently uses:
 #### Region Metadata ✅ WORKS
 - **Path Pattern**: `/aws/service/global-infrastructure/regions/{region_code}/{property}`
 - **Available Properties**:
-  ```
+
+  ```text
   domain: amazonaws.com
   geolocationCountry: US, IE, SG, etc.
   geolocationRegion: US-VA, IE-D, SG-01, etc.
@@ -81,7 +84,8 @@ The AWS Services Reporter currently uses:
 - **Path Pattern**: `/aws/service/global-infrastructure/regions/{region_code}/services`
 - **Content**: List of service codes available in that region
 - **Verified Service Counts**:
-  ```
+
+  ```text
   us-east-1: 389 services (most comprehensive)
   eu-west-1: 344 services
   ap-southeast-1: 319 services
@@ -106,7 +110,8 @@ The AWS Services Reporter currently uses:
 - **Path**: `/aws/service/ami-amazon-linux-latest/{variant}`
 - **Content**: Latest AMI IDs for Amazon Linux
 - **Verified Examples**:
-  ```
+
+  ```text
   /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
   → "ami-0e95a5e2743ec9ec9"
 
@@ -118,7 +123,8 @@ The AWS Services Reporter currently uses:
 - **Path**: `/aws/service/ami-windows-latest/{variant}`
 - **Content**: Latest Windows Server AMI IDs
 - **Verified Example**:
-  ```
+
+  ```text
   /aws/service/ami-windows-latest/Windows_Server-2022-English-Full-Base
   → "ami-028dc1123403bd543"
   ```
@@ -127,7 +133,8 @@ The AWS Services Reporter currently uses:
 - **Path**: `/aws/service/ecs/optimized-ami/{variant}`
 - **Content**: ECS-optimized AMI information (JSON format)
 - **Verified Examples**:
-  ```
+
+  ```json
   /aws/service/ecs/optimized-ami/amazon-linux-2/recommended
   → {"ecs_agent_version":"1.98.0","image_id":"ami-0a443363996ce3eb4",...}
 
@@ -159,6 +166,7 @@ The AWS Services Reporter currently uses:
 ### What You Can Build With Available Data
 
 #### 1. Comprehensive Service Reports ✅
+
 ```python
 # Service inventory with full names
 services = {
@@ -176,6 +184,7 @@ regional_availability = {
 ```
 
 #### 2. Region Analysis ✅
+
 ```python
 # Region metadata
 regions = {
@@ -189,6 +198,7 @@ regions = {
 ```
 
 #### 3. Infrastructure Mapping ✅
+
 ```python
 # Get current AMI IDs dynamically
 linux_ami = ssm.get_parameter('/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2')
@@ -256,6 +266,6 @@ The AWS Services Reporter uses only verified available data:
 **Document Version**: 2.0 - **VERIFIED DATA ONLY**  
 **Testing Date**: August 28, 2024  
 **API Testing Region**: us-east-1  
-**Related Project**: AWS Services Reporter v1.3.0
+**Related Project**: AWS Services Reporter v1.5.0
 
 **⚠️ Note**: This document reflects the actual state of AWS Parameter Store public parameters as of August 2024. Unlike theoretical documentation, all paths and data have been verified through direct API testing.
